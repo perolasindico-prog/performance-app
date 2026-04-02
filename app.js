@@ -67,20 +67,20 @@
 
   // ─── Storage ───
   function getSessions() {
-    try { return JSON.parse(localStorage.getItem('focusflow_sessions') || '[]'); }
+    try { return JSON.parse(localStorage.getItem('direcionado_sessions') || '[]'); }
     catch { return []; }
   }
-  function saveSessions(sessions) { localStorage.setItem('focusflow_sessions', JSON.stringify(sessions)); }
+  function saveSessions(sessions) { localStorage.setItem('direcionado_sessions', JSON.stringify(sessions)); }
   function getRevenue() {
-    try { return JSON.parse(localStorage.getItem('focusflow_revenue') || '[]'); }
+    try { return JSON.parse(localStorage.getItem('direcionado_revenue') || '[]'); }
     catch { return []; }
   }
-  function saveRevenue(entries) { localStorage.setItem('focusflow_revenue', JSON.stringify(entries)); }
+  function saveRevenue(entries) { localStorage.setItem('direcionado_revenue', JSON.stringify(entries)); }
   function getGoal() {
-    try { return JSON.parse(localStorage.getItem('focusflow_goal') || '{}'); }
+    try { return JSON.parse(localStorage.getItem('direcionado_goal') || '{}'); }
     catch { return {}; }
   }
-  function saveGoal(goal) { localStorage.setItem('focusflow_goal', JSON.stringify(goal)); }
+  function saveGoal(goal) { localStorage.setItem('direcionado_goal', JSON.stringify(goal)); }
 
   // ─── Helpers ───
   function formatTime(s) {
@@ -122,7 +122,7 @@
     timerDisplay.textContent = formatTime(elapsedSeconds);
     const progress = (elapsedSeconds % 3600) / 3600;
     ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
-    if (isRunning) document.title = `${formatTime(elapsedSeconds)} — FocusFlow`;
+    if (isRunning) document.title = `${formatTime(elapsedSeconds)} — Direcionado`;
   }
 
   function tick() {
@@ -140,7 +140,7 @@
       statusText.textContent = 'Pausado';
       timerGlow.classList.remove('active');
       btnSave.disabled = false;
-      document.title = 'FocusFlow — Work Tracker';
+      document.title = 'Direcionado';
     } else {
       startTimestamp = startTimestamp === null ? Date.now() : Date.now() - elapsedSeconds * 1000;
       timerInterval = setInterval(tick, 250); isRunning = true;
@@ -164,7 +164,7 @@
     statusText.textContent = 'Pronto para focar';
     timerGlow.classList.remove('active');
     ringProgress.style.strokeDashoffset = 0;
-    document.title = 'FocusFlow — Work Tracker';
+    document.title = 'Direcionado';
   }
 
   function saveSession() {
@@ -230,7 +230,7 @@
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url; a.download = `focusflow-backup-${getTodayKey()}.json`;
+    a.href = url; a.download = `direcionado-backup-${getTodayKey()}.json`;
     a.click(); URL.revokeObjectURL(url);
     showToast('Dados exportados!');
   }
