@@ -550,9 +550,13 @@
   $('#btn-save-goal').addEventListener('click', saveGoalAction);
   $('#input-goal').addEventListener('keydown', e => { if (e.key==='Enter') saveGoalAction(); });
 
-  // Export/Import
+  // Export/Import (desktop sidebar + mobile)
   $('#btn-export').addEventListener('click', exportData);
   $('#btn-import').addEventListener('click', () => $('#file-import').click());
+  const exportMobile = $('#btn-export-mobile');
+  const importMobile = $('#btn-import-mobile');
+  if (exportMobile) exportMobile.addEventListener('click', exportData);
+  if (importMobile) importMobile.addEventListener('click', () => $('#file-import').click());
   $('#file-import').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value=''; });
 
   // Keyboard
