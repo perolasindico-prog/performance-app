@@ -4,11 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FocusFlow — Work Tracker</title>
+  <meta name="description" content="FocusFlow — App de tracking de trabalho, horas de foco e faturamento. Design premium minimalista.">
+  <meta name="theme-color" content="#0C0C0F">
+  <meta property="og:title" content="FocusFlow — Work Tracker">
+  <meta property="og:description" content="Tracking de trabalho, foco e faturamento.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='none' stroke='%23B4B4BF' stroke-width='2.5'/><path d='M16 7v9l6 3.5' stroke='%23B4B4BF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Toast container -->
+  <div class="toast-container" id="toast-container"></div>
+
   <!-- Animated background -->
   <div class="bg-effects">
     <div class="bg-orb bg-orb-1"></div>
@@ -16,6 +24,9 @@
     <div class="bg-orb bg-orb-3"></div>
     <div class="bg-grid"></div>
   </div>
+
+  <!-- Celebration overlay -->
+  <div class="celebration-overlay" id="celebration-overlay"></div>
 
   <div class="app">
     <!-- Sidebar -->
@@ -55,23 +66,25 @@
             <span>Faturamento</span>
             <div class="nav-indicator"></div>
           </a></li>
-          <li><a href="#" class="nav-link" data-view="history">
+          <li><a href="#" class="nav-link" data-view="dashboard">
             <div class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             </div>
-            <span>Historico</span>
-            <div class="nav-indicator"></div>
-          </a></li>
-          <li><a href="#" class="nav-link" data-view="stats">
-            <div class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <span>Estatisticas</span>
+            <span>Dashboard</span>
             <div class="nav-indicator"></div>
           </a></li>
         </ul>
 
         <div class="sidebar-footer">
+          <div class="sidebar-actions">
+            <button class="btn btn-ghost btn-sm" id="btn-export" title="Exportar dados">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            </button>
+            <button class="btn btn-ghost btn-sm" id="btn-import" title="Importar dados">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </button>
+          </div>
+          <input type="file" id="file-import" accept=".json" style="display:none">
           <div class="status-badge" id="status-badge">
             <div class="status-dot"></div>
             <span class="status-text">Pronto para focar</span>
@@ -87,7 +100,7 @@
         <header class="view-header">
           <div class="view-header-top">
             <div>
-              <h1>Work Session</h1>
+              <h1>Sessao de Trabalho</h1>
               <p class="subtitle">Concentre-se no que importa</p>
             </div>
             <div class="quick-stat-pills">
@@ -120,10 +133,7 @@
                   </linearGradient>
                   <filter id="glow-filter">
                     <feGaussianBlur stdDeviation="6" result="blur"/>
-                    <feMerge>
-                      <feMergeNode in="blur"/>
-                      <feMergeNode in="SourceGraphic"/>
-                    </feMerge>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                   </filter>
                 </defs>
                 <circle cx="170" cy="170" r="158" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
@@ -194,7 +204,7 @@
         </header>
 
         <!-- Monthly Goal -->
-        <div class="revenue-goal-card">
+        <div class="revenue-goal-card" id="revenue-goal-card">
           <div class="goal-header">
             <div>
               <h3>Meta Mensal</h3>
@@ -226,22 +236,42 @@
               <span class="goal-remaining" id="goal-remaining">Faltam R$ 0</span>
             </div>
           </div>
-          <!-- Projection -->
-          <div class="projection-card" id="projection-card">
-            <div class="projection-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
-            </div>
-            <div class="projection-text">
-              <span class="projection-label">Projecao fim do mes</span>
-              <span class="projection-value" id="projection-value">R$ 0</span>
+          <!-- Pace indicator -->
+          <div class="pace-card" id="pace-card">
+            <div class="pace-row">
+              <div class="pace-item">
+                <div class="pace-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+                </div>
+                <div class="pace-text">
+                  <span class="pace-label">Projecao fim do mes</span>
+                  <span class="pace-value" id="projection-value">R$ 0</span>
+                </div>
+              </div>
+              <div class="pace-divider"></div>
+              <div class="pace-item">
+                <div class="pace-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                </div>
+                <div class="pace-text">
+                  <span class="pace-label">Ritmo necessario/dia</span>
+                  <span class="pace-value" id="pace-daily">R$ 0</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Add Revenue -->
+        <!-- Add Revenue (collapsible) -->
         <div class="add-revenue-card">
-          <h3>Registrar Receita</h3>
-          <div class="revenue-form">
+          <button class="add-revenue-toggle" id="add-revenue-toggle">
+            <div class="add-revenue-toggle-left">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Registrar Receita</span>
+            </div>
+            <svg class="toggle-chevron" id="toggle-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="revenue-form-body" id="revenue-form-body" style="display:none">
             <div class="input-row">
               <div class="input-group flex-2">
                 <label>Valor (R$)</label>
@@ -256,10 +286,7 @@
                 <input type="date" id="input-revenue-date" class="input input-lg">
               </div>
             </div>
-            <button class="btn btn-accent" id="btn-add-revenue">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Adicionar
-            </button>
+            <button class="btn btn-accent" id="btn-add-revenue">Adicionar</button>
           </div>
         </div>
 
@@ -282,37 +309,18 @@
         </div>
       </section>
 
-      <!-- History View -->
-      <section class="view" id="view-history">
+      <!-- Dashboard View (merged History + Stats) -->
+      <section class="view" id="view-dashboard">
         <header class="view-header">
-          <h1>Historico</h1>
-          <p class="subtitle">Seu progresso nos ultimos dias</p>
-        </header>
-
-        <div class="chart-card">
-          <div class="chart-header">
-            <h3>Ultimos 7 Dias</h3>
-            <span class="chart-total" id="chart-total">0h total</span>
-          </div>
-          <div class="chart" id="weekly-chart"></div>
-        </div>
-
-        <div class="history-list" id="history-list"></div>
-      </section>
-
-      <!-- Stats View -->
-      <section class="view" id="view-stats">
-        <header class="view-header">
-          <h1>Estatisticas</h1>
+          <h1>Dashboard</h1>
           <p class="subtitle">Visao geral do seu desempenho</p>
         </header>
 
+        <!-- Stats Grid -->
         <div class="stats-grid">
           <div class="stat-card stat-card-featured">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-total-today">0h 0m</div>
                 <div class="stat-label">Foco Hoje</div>
@@ -321,9 +329,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-streak">0 dias</div>
                 <div class="stat-label">Sequencia</div>
@@ -332,20 +338,17 @@
           </div>
           <div class="stat-card">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-avg">0h 0m</div>
                 <div class="stat-label">Media Diaria (7d)</div>
+                <div class="stat-compare" id="stat-avg-compare"></div>
               </div>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-best">0h 0m</div>
                 <div class="stat-label">Melhor Dia</div>
@@ -354,9 +357,7 @@
           </div>
           <div class="stat-card">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-sessions-count">0</div>
                 <div class="stat-label">Total de Sessoes</div>
@@ -365,15 +366,30 @@
           </div>
           <div class="stat-card">
             <div class="stat-card-inner">
-              <div class="stat-icon-wrap">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-              </div>
+              <div class="stat-icon-wrap"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
               <div class="stat-content">
                 <div class="stat-value" id="stat-longest-session">0h 0m</div>
                 <div class="stat-label">Sessao Mais Longa</div>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3>Ultimos 7 Dias</h3>
+            <span class="chart-total" id="chart-total">0h total</span>
+          </div>
+          <div class="chart" id="weekly-chart"></div>
+        </div>
+
+        <!-- History List -->
+        <div class="history-section">
+          <div class="section-header">
+            <h3>Historico de Sessoes</h3>
+          </div>
+          <div class="history-list" id="history-list"></div>
         </div>
       </section>
     </main>
@@ -389,13 +405,9 @@
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
       <span>Receita</span>
     </a>
-    <a href="#" class="mobile-nav-link" data-view="history">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-      <span>Historico</span>
-    </a>
-    <a href="#" class="mobile-nav-link" data-view="stats">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      <span>Stats</span>
+    <a href="#" class="mobile-nav-link" data-view="dashboard">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>Dashboard</span>
     </a>
   </nav>
 
