@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   FocusFlow — Work Tracking App
+   FocusFlow — Work Tracking App v2
    ═══════════════════════════════════════════ */
 
 (function () {
@@ -25,9 +25,11 @@
   const iconPause = $('#icon-pause');
   const statusDot = $('.status-dot');
   const statusText = $('.status-text');
+  const statusBadge = $('#status-badge');
   const ringProgress = $('.timer-ring-progress');
+  const timerGlow = $('#timer-glow');
 
-  const CIRCUMFERENCE = 2 * Math.PI * 140; // r=140
+  const CIRCUMFERENCE = 2 * Math.PI * 140;
 
   // ─── Storage ───
   function getSessions() {
@@ -98,10 +100,14 @@
   function updateTimerDisplay() {
     timerDisplay.textContent = formatTime(elapsedSeconds);
 
-    // Update ring — full loop every 60 minutes
     const progress = (elapsedSeconds % 3600) / 3600;
     const offset = CIRCUMFERENCE * (1 - progress);
     ringProgress.style.strokeDashoffset = offset;
+
+    // Update page title
+    if (isRunning) {
+      document.title = `${formatTime(elapsedSeconds)} — FocusFlow`;
+    }
   }
 
   function tick() {
@@ -120,8 +126,11 @@
       timerLabel.textContent = 'Pausado';
       timerLabel.classList.remove('running');
       statusDot.classList.remove('active');
+      statusBadge.classList.remove('active');
       statusText.textContent = 'Pausado';
+      timerGlow.classList.remove('active');
       btnSave.disabled = false;
+      document.title = 'FocusFlow — Work Tracker';
     } else {
       // Start / Resume
       if (startTimestamp === null) {
@@ -139,7 +148,9 @@
       timerLabel.textContent = 'Focando...';
       timerLabel.classList.add('running');
       statusDot.classList.add('active');
+      statusBadge.classList.add('active');
       statusText.textContent = 'Em foco';
+      timerGlow.classList.add('active');
     }
   }
 
@@ -157,12 +168,15 @@
     timerLabel.textContent = 'Pronto';
     timerLabel.classList.remove('running');
     statusDot.classList.remove('active');
+    statusBadge.classList.remove('active');
     statusText.textContent = 'Pronto para focar';
+    timerGlow.classList.remove('active');
     ringProgress.style.strokeDashoffset = 0;
+    document.title = 'FocusFlow — Work Tracker';
   }
 
   function saveSession() {
-    if (elapsedSeconds < 5) return; // Minimum 5 seconds
+    if (elapsedSeconds < 5) return;
 
     const endTime = Date.now();
     const startTime = endTime - elapsedSeconds * 1000;
@@ -189,6 +203,27 @@
     renderAll();
   }
 
+  // ─── Quick Stats (pills in timer view) ───
+  function updateQuickStats() {
+    const sessions = getSessions();
+    const today = getTodayKey();
+    const todayTotal = sessions.filter((s) => s.date === today).reduce((sum, s) => sum + s.duration, 0);
+    $('#pill-today-val').textContent = `${formatHM(todayTotal)} hoje`;
+
+    let streak = 0;
+    const d = new Date();
+    while (true) {
+      const key = getDateKey(d);
+      if (sessions.some((s) => s.date === key)) {
+        streak++;
+        d.setDate(d.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    $('#pill-streak-val').textContent = `${streak} dia${streak !== 1 ? 's' : ''}`;
+  }
+
   // ─── Rendering ───
   function renderTodaySessions() {
     const container = $('#today-sessions');
@@ -196,6 +231,8 @@
     const sessions = getSessions()
       .filter((s) => s.date === today)
       .sort((a, b) => b.start - a.start);
+
+    $('#today-count').textContent = `${sessions.length} sess${sessions.length !== 1 ? 'oes' : 'ao'}`;
 
     if (sessions.length === 0) {
       container.innerHTML = '<div class="empty-state">Nenhuma sessao registrada hoje. Comece a focar!</div>';
@@ -230,20 +267,24 @@
     const container = $('#weekly-chart');
     const sessions = getSessions();
     const days = [];
+    let weekTotal = 0;
 
     for (let i = 6; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const key = getDateKey(d);
       const total = sessions.filter((s) => s.date === key).reduce((sum, s) => sum + s.duration, 0);
+      weekTotal += total;
       days.push({ key, total, label: getDayName(key), isToday: i === 0 });
     }
+
+    $('#chart-total').textContent = `${formatHM(weekTotal)} total`;
 
     const maxVal = Math.max(...days.map((d) => d.total), 1);
 
     container.innerHTML = days
       .map((d) => {
-        const height = Math.max((d.total / maxVal) * 160, 4);
+        const height = Math.max((d.total / maxVal) * 155, 4);
         return `
         <div class="chart-bar-wrapper">
           <span class="chart-bar-value">${d.total > 0 ? formatDuration(d.total) : '—'}</span>
@@ -259,7 +300,6 @@
     const container = $('#history-list');
     const sessions = getSessions();
 
-    // Group by date
     const grouped = {};
     sessions.forEach((s) => {
       if (!grouped[s.date]) grouped[s.date] = [];
@@ -304,7 +344,6 @@
       })
       .join('');
 
-    // Toggle day sessions
     container.querySelectorAll('.history-day-header').forEach((header) => {
       header.addEventListener('click', () => {
         const panel = $(`#sessions-${header.dataset.date}`);
@@ -317,17 +356,14 @@
     const sessions = getSessions();
     const today = getTodayKey();
 
-    // Total today
     const todayTotal = sessions.filter((s) => s.date === today).reduce((sum, s) => sum + s.duration, 0);
     $('#stat-total-today').textContent = formatHM(todayTotal);
 
-    // Streak
     let streak = 0;
     const d = new Date();
     while (true) {
       const key = getDateKey(d);
-      const hasSessions = sessions.some((s) => s.date === key);
-      if (hasSessions) {
+      if (sessions.some((s) => s.date === key)) {
         streak++;
         d.setDate(d.getDate() - 1);
       } else {
@@ -336,7 +372,6 @@
     }
     $('#stat-streak').textContent = `${streak} dia${streak !== 1 ? 's' : ''}`;
 
-    // Average (7 days)
     let totalWeek = 0;
     let daysWithSessions = 0;
     for (let i = 0; i < 7; i++) {
@@ -348,7 +383,6 @@
     const avg = daysWithSessions > 0 ? Math.round(totalWeek / daysWithSessions) : 0;
     $('#stat-avg').textContent = formatHM(avg);
 
-    // Best day
     const grouped = {};
     sessions.forEach((s) => {
       grouped[s.date] = (grouped[s.date] || 0) + s.duration;
@@ -356,10 +390,8 @@
     const best = Math.max(...Object.values(grouped), 0);
     $('#stat-best').textContent = formatHM(best);
 
-    // Total sessions count
     $('#stat-sessions-count').textContent = sessions.length;
 
-    // Longest session
     const longest = sessions.reduce((max, s) => Math.max(max, s.duration), 0);
     $('#stat-longest-session').textContent = formatHM(longest);
 
@@ -370,7 +402,6 @@
     });
     const maxCat = Math.max(...Object.values(categories), 1);
     const catContainer = $('#category-bars');
-
     const sortedCats = Object.entries(categories).sort((a, b) => b[1] - a[1]);
 
     if (sortedCats.length === 0) {
@@ -397,17 +428,15 @@
     renderWeeklyChart();
     renderHistoryList();
     renderStats();
+    updateQuickStats();
   }
 
   // ─── Navigation ───
   function switchView(viewName) {
     $$('.view').forEach((v) => v.classList.remove('active'));
     $(`#view-${viewName}`).classList.add('active');
-
     $$('.nav-link').forEach((l) => l.classList.toggle('active', l.dataset.view === viewName));
     $$('.mobile-nav-link').forEach((l) => l.classList.toggle('active', l.dataset.view === viewName));
-
-    // Re-render when switching to ensure fresh data
     renderAll();
   }
 
@@ -416,7 +445,6 @@
   btnReset.addEventListener('click', resetTimer);
   btnSave.addEventListener('click', saveSession);
 
-  // Tags
   $('#tags').addEventListener('click', (e) => {
     const tag = e.target.closest('.tag');
     if (!tag) return;
@@ -425,7 +453,6 @@
     selectedTag = tag.dataset.tag;
   });
 
-  // Navigation — sidebar
   $$('.nav-link').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -433,7 +460,6 @@
     });
   });
 
-  // Navigation — mobile
   $$('.mobile-nav-link').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -441,7 +467,6 @@
     });
   });
 
-  // Keyboard shortcut — Space to start/pause
   document.addEventListener('keydown', (e) => {
     if (e.code === 'Space' && e.target === document.body) {
       e.preventDefault();

@@ -5,45 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FocusFlow — Work Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Animated background -->
+  <div class="bg-effects">
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+    <div class="bg-grid"></div>
+  </div>
+
   <div class="app">
     <!-- Sidebar -->
     <nav class="sidebar">
-      <div class="logo">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="12" stroke="url(#silver-grad)" stroke-width="2.5"/>
-            <path d="M14 6v8l5.5 3.5" stroke="url(#silver-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="silver-grad" x1="0" y1="0" x2="28" y2="28">
-                <stop offset="0%" stop-color="#C0C0C0"/>
-                <stop offset="100%" stop-color="#8A8A8A"/>
-              </linearGradient>
-            </defs>
-          </svg>
+      <div class="sidebar-inner">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <circle cx="16" cy="16" r="14" stroke="url(#logo-grad)" stroke-width="2"/>
+              <circle cx="16" cy="16" r="14" stroke="url(#logo-grad)" stroke-width="2" opacity="0.3" stroke-dasharray="4 4">
+                <animateTransform attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" dur="20s" repeatCount="indefinite"/>
+              </circle>
+              <path d="M16 7v9l6 3.5" stroke="url(#logo-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <defs>
+                <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32">
+                  <stop offset="0%" stop-color="#E8E8ED"/>
+                  <stop offset="100%" stop-color="#8B8B96"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="logo-text">FocusFlow</span>
         </div>
-        <span class="logo-text">FocusFlow</span>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#" class="nav-link active" data-view="timer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>Timer</span>
-        </a></li>
-        <li><a href="#" class="nav-link" data-view="history">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-          <span>Historico</span>
-        </a></li>
-        <li><a href="#" class="nav-link" data-view="stats">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span>Estatisticas</span>
-        </a></li>
-      </ul>
-      <div class="sidebar-footer">
-        <div class="status-dot"></div>
-        <span class="status-text">Pronto para focar</span>
+
+        <ul class="nav-links">
+          <li><a href="#" class="nav-link active" data-view="timer">
+            <div class="nav-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span>Timer</span>
+            <div class="nav-indicator"></div>
+          </a></li>
+          <li><a href="#" class="nav-link" data-view="history">
+            <div class="nav-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            </div>
+            <span>Historico</span>
+            <div class="nav-indicator"></div>
+          </a></li>
+          <li><a href="#" class="nav-link" data-view="stats">
+            <div class="nav-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <span>Estatisticas</span>
+            <div class="nav-indicator"></div>
+          </a></li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="status-badge" id="status-badge">
+            <div class="status-dot"></div>
+            <span class="status-text">Pronto para focar</span>
+          </div>
+        </div>
       </div>
     </nav>
 
@@ -52,56 +78,96 @@
       <!-- Timer View -->
       <section class="view active" id="view-timer">
         <header class="view-header">
-          <h1>Sessao de Foco</h1>
-          <p class="subtitle">Concentre-se no que importa</p>
+          <div class="view-header-top">
+            <div>
+              <h1>Sessao de Foco</h1>
+              <p class="subtitle">Concentre-se no que importa</p>
+            </div>
+            <div class="quick-stat-pills">
+              <div class="pill" id="pill-today">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <span id="pill-today-val">0h 0m hoje</span>
+              </div>
+              <div class="pill" id="pill-streak">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                <span id="pill-streak-val">0 dias</span>
+              </div>
+            </div>
+          </div>
         </header>
 
         <div class="timer-container">
-          <div class="timer-ring-wrapper">
-            <svg class="timer-ring" viewBox="0 0 320 320">
-              <defs>
-                <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#D4D4D8"/>
-                  <stop offset="50%" stop-color="#A1A1AA"/>
-                  <stop offset="100%" stop-color="#71717A"/>
-                </linearGradient>
-                <linearGradient id="ring-active" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#E4E4E7"/>
-                  <stop offset="50%" stop-color="#A1A1AA"/>
-                  <stop offset="100%" stop-color="#52525B"/>
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              <circle class="timer-ring-bg" cx="160" cy="160" r="140" fill="none" stroke="#E4E4E7" stroke-width="6"/>
-              <circle class="timer-ring-progress" cx="160" cy="160" r="140" fill="none" stroke="url(#ring-active)" stroke-width="6" stroke-linecap="round" filter="url(#glow)" stroke-dasharray="879.65" stroke-dashoffset="0" transform="rotate(-90 160 160)"/>
-            </svg>
-            <div class="timer-display">
-              <span class="timer-time" id="timer-display">00:00:00</span>
-              <span class="timer-label" id="timer-label">Pronto</span>
+          <div class="timer-card">
+            <div class="timer-glow" id="timer-glow"></div>
+            <div class="timer-ring-wrapper">
+              <svg class="timer-ring" viewBox="0 0 340 340">
+                <defs>
+                  <linearGradient id="ring-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="rgba(255,255,255,0.06)"/>
+                    <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+                  </linearGradient>
+                  <linearGradient id="ring-active" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F0F0F5"/>
+                    <stop offset="40%" stop-color="#B0B0BA"/>
+                    <stop offset="100%" stop-color="#6E6E7A"/>
+                  </linearGradient>
+                  <filter id="glow-filter">
+                    <feGaussianBlur stdDeviation="6" result="blur"/>
+                    <feMerge>
+                      <feMergeNode in="blur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                  <filter id="outer-glow">
+                    <feGaussianBlur stdDeviation="12" result="blur"/>
+                    <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+                  </filter>
+                </defs>
+                <!-- Outer decorative ring -->
+                <circle cx="170" cy="170" r="158" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+                <!-- Tick marks -->
+                <g class="tick-marks" opacity="0.15">
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(0 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(30 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(60 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="25" stroke="#aaa" stroke-width="1" transform="rotate(90 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(120 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(150 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(180 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(210 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(240 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="25" stroke="#aaa" stroke-width="1" transform="rotate(270 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(300 170 170)"/>
+                  <line x1="170" y1="18" x2="170" y2="28" stroke="#aaa" stroke-width="1.5" transform="rotate(330 170 170)"/>
+                </g>
+                <!-- Background ring -->
+                <circle class="timer-ring-bg" cx="170" cy="170" r="140" fill="none" stroke="url(#ring-bg-grad)" stroke-width="8"/>
+                <!-- Progress ring -->
+                <circle class="timer-ring-progress" cx="170" cy="170" r="140" fill="none" stroke="url(#ring-active)" stroke-width="8" stroke-linecap="round" filter="url(#glow-filter)" stroke-dasharray="879.65" stroke-dashoffset="0" transform="rotate(-90 170 170)"/>
+              </svg>
+              <div class="timer-display">
+                <span class="timer-time" id="timer-display">00:00:00</span>
+                <span class="timer-label" id="timer-label">Pronto</span>
+              </div>
+            </div>
+
+            <div class="timer-controls">
+              <button class="btn btn-ghost" id="btn-reset" disabled title="Resetar">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+              </button>
+              <button class="btn btn-primary" id="btn-start">
+                <div class="btn-primary-bg"></div>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="icon-play"><polygon points="6 3 20 12 6 21 6 3"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="icon-pause" style="display:none"><rect x="5" y="3" width="5" height="18" rx="1"/><rect x="14" y="3" width="5" height="18" rx="1"/></svg>
+              </button>
+              <button class="btn btn-ghost" id="btn-save" disabled title="Salvar sessao">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </button>
             </div>
           </div>
 
-          <div class="timer-controls">
-            <button class="btn btn-secondary" id="btn-reset" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-            </button>
-            <button class="btn btn-primary" id="btn-start">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="icon-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="icon-pause" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-            <button class="btn btn-secondary" id="btn-save" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            </button>
-          </div>
-
           <div class="session-tag-area">
-            <label class="tag-label">Categoria da sessao</label>
+            <label class="tag-label">Categoria</label>
             <div class="tags" id="tags">
               <button class="tag active" data-tag="Trabalho">Trabalho</button>
               <button class="tag" data-tag="Estudo">Estudo</button>
@@ -114,7 +180,10 @@
 
         <!-- Today's Sessions -->
         <div class="today-sessions">
-          <h3>Sessoes de Hoje</h3>
+          <div class="section-header">
+            <h3>Sessoes de Hoje</h3>
+            <span class="section-count" id="today-count">0 sessoes</span>
+          </div>
           <div class="sessions-list" id="today-sessions"></div>
         </div>
       </section>
@@ -126,9 +195,10 @@
           <p class="subtitle">Seu progresso nos ultimos dias</p>
         </header>
 
-        <div class="chart-container">
+        <div class="chart-card">
           <div class="chart-header">
-            <h3>Tempo de Foco - Ultimos 7 Dias</h3>
+            <h3>Ultimos 7 Dias</h3>
+            <span class="chart-total" id="chart-total">0h total</span>
           </div>
           <div class="chart" id="weekly-chart"></div>
         </div>
@@ -144,52 +214,78 @@
         </header>
 
         <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="stat-card stat-card-featured">
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-total-today">0h 0m</div>
+                <div class="stat-label">Foco Hoje</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-total-today">0h 0m</div>
-            <div class="stat-label">Foco Hoje</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-streak">0 dias</div>
+                <div class="stat-label">Sequencia</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-streak">0 dias</div>
-            <div class="stat-label">Sequencia</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-avg">0h 0m</div>
+                <div class="stat-label">Media Diaria (7d)</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-avg">0h 0m</div>
-            <div class="stat-label">Media Diaria (7d)</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-best">0h 0m</div>
+                <div class="stat-label">Melhor Dia</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-best">0h 0m</div>
-            <div class="stat-label">Melhor Dia</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-sessions-count">0</div>
+                <div class="stat-label">Total de Sessoes</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-sessions-count">0</div>
-            <div class="stat-label">Total de Sessoes</div>
           </div>
           <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <div class="stat-card-inner">
+              <div class="stat-icon-wrap">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+              </div>
+              <div class="stat-content">
+                <div class="stat-value" id="stat-longest-session">0h 0m</div>
+                <div class="stat-label">Sessao Mais Longa</div>
+              </div>
             </div>
-            <div class="stat-value" id="stat-longest-session">0h 0m</div>
-            <div class="stat-label">Sessao Mais Longa</div>
           </div>
         </div>
 
-        <div class="category-breakdown">
-          <h3>Distribuicao por Categoria</h3>
+        <div class="category-card">
+          <div class="section-header">
+            <h3>Distribuicao por Categoria</h3>
+          </div>
           <div class="category-bars" id="category-bars"></div>
         </div>
       </section>
@@ -199,15 +295,15 @@
   <!-- Mobile Nav -->
   <nav class="mobile-nav">
     <a href="#" class="mobile-nav-link active" data-view="timer">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span>Timer</span>
     </a>
     <a href="#" class="mobile-nav-link" data-view="history">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
       <span>Historico</span>
     </a>
     <a href="#" class="mobile-nav-link" data-view="stats">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
       <span>Stats</span>
     </a>
   </nav>
