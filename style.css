@@ -1128,14 +1128,39 @@ body {
 }
 
 /* ═══════════════════════════════════════════
-   Mobile Export/Import Bar
+   Mobile Header
    ═══════════════════════════════════════════ */
+
+.mobile-header {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mobile-logo-text {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--silver-100), var(--silver-400));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.mobile-actions-row {
+  display: flex;
+  gap: 6px;
+}
 
 .mobile-actions {
   display: none;
-  justify-content: flex-end;
-  gap: 8px;
-  margin-bottom: 16px;
 }
 
 /* ═══════════════════════════════════════════
@@ -1145,7 +1170,7 @@ body {
 @media (max-width: 768px) {
   .sidebar { display: none; }
   .mobile-nav { display: flex; }
-  .mobile-actions { display: flex; }
+  .mobile-header { display: flex; }
 
   .main {
     margin-left: 0;
