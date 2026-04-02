@@ -3,214 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FocusFlow — Work Tracker</title>
+  <title>Um Dia Especial</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;1,400;1,600&family=Inter:wght@300;400;500;600&family=Dancing+Script:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="app">
-    <!-- Sidebar -->
-    <nav class="sidebar">
-      <div class="logo">
-        <div class="logo-icon">
-          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-            <circle cx="14" cy="14" r="12" stroke="url(#silver-grad)" stroke-width="2.5"/>
-            <path d="M14 6v8l5.5 3.5" stroke="url(#silver-grad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="silver-grad" x1="0" y1="0" x2="28" y2="28">
-                <stop offset="0%" stop-color="#C0C0C0"/>
-                <stop offset="100%" stop-color="#8A8A8A"/>
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <span class="logo-text">FocusFlow</span>
-      </div>
-      <ul class="nav-links">
-        <li><a href="#" class="nav-link active" data-view="timer">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span>Timer</span>
-        </a></li>
-        <li><a href="#" class="nav-link" data-view="history">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-          <span>Historico</span>
-        </a></li>
-        <li><a href="#" class="nav-link" data-view="stats">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          <span>Estatisticas</span>
-        </a></li>
-      </ul>
-      <div class="sidebar-footer">
-        <div class="status-dot"></div>
-        <span class="status-text">Pronto para focar</span>
-      </div>
-    </nav>
 
-    <!-- Main Content -->
-    <main class="main">
-      <!-- Timer View -->
-      <section class="view active" id="view-timer">
-        <header class="view-header">
-          <h1>Sessao de Foco</h1>
-          <p class="subtitle">Concentre-se no que importa</p>
-        </header>
-
-        <div class="timer-container">
-          <div class="timer-ring-wrapper">
-            <svg class="timer-ring" viewBox="0 0 320 320">
-              <defs>
-                <linearGradient id="ring-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#D4D4D8"/>
-                  <stop offset="50%" stop-color="#A1A1AA"/>
-                  <stop offset="100%" stop-color="#71717A"/>
-                </linearGradient>
-                <linearGradient id="ring-active" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#E4E4E7"/>
-                  <stop offset="50%" stop-color="#A1A1AA"/>
-                  <stop offset="100%" stop-color="#52525B"/>
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              <circle class="timer-ring-bg" cx="160" cy="160" r="140" fill="none" stroke="#E4E4E7" stroke-width="6"/>
-              <circle class="timer-ring-progress" cx="160" cy="160" r="140" fill="none" stroke="url(#ring-active)" stroke-width="6" stroke-linecap="round" filter="url(#glow)" stroke-dasharray="879.65" stroke-dashoffset="0" transform="rotate(-90 160 160)"/>
-            </svg>
-            <div class="timer-display">
-              <span class="timer-time" id="timer-display">00:00:00</span>
-              <span class="timer-label" id="timer-label">Pronto</span>
-            </div>
-          </div>
-
-          <div class="timer-controls">
-            <button class="btn btn-secondary" id="btn-reset" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
-            </button>
-            <button class="btn btn-primary" id="btn-start">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="icon-play"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" id="icon-pause" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-            </button>
-            <button class="btn btn-secondary" id="btn-save" disabled>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            </button>
-          </div>
-
-          <div class="session-tag-area">
-            <label class="tag-label">Categoria da sessao</label>
-            <div class="tags" id="tags">
-              <button class="tag active" data-tag="Trabalho">Trabalho</button>
-              <button class="tag" data-tag="Estudo">Estudo</button>
-              <button class="tag" data-tag="Projeto">Projeto</button>
-              <button class="tag" data-tag="Leitura">Leitura</button>
-              <button class="tag" data-tag="Outro">Outro</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Today's Sessions -->
-        <div class="today-sessions">
-          <h3>Sessoes de Hoje</h3>
-          <div class="sessions-list" id="today-sessions"></div>
-        </div>
-      </section>
-
-      <!-- History View -->
-      <section class="view" id="view-history">
-        <header class="view-header">
-          <h1>Historico</h1>
-          <p class="subtitle">Seu progresso nos ultimos dias</p>
-        </header>
-
-        <div class="chart-container">
-          <div class="chart-header">
-            <h3>Tempo de Foco - Ultimos 7 Dias</h3>
-          </div>
-          <div class="chart" id="weekly-chart"></div>
-        </div>
-
-        <div class="history-list" id="history-list"></div>
-      </section>
-
-      <!-- Stats View -->
-      <section class="view" id="view-stats">
-        <header class="view-header">
-          <h1>Estatisticas</h1>
-          <p class="subtitle">Visao geral do seu desempenho</p>
-        </header>
-
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            </div>
-            <div class="stat-value" id="stat-total-today">0h 0m</div>
-            <div class="stat-label">Foco Hoje</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <div class="stat-value" id="stat-streak">0 dias</div>
-            <div class="stat-label">Sequencia</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-            </div>
-            <div class="stat-value" id="stat-avg">0h 0m</div>
-            <div class="stat-label">Media Diaria (7d)</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-            </div>
-            <div class="stat-value" id="stat-best">0h 0m</div>
-            <div class="stat-label">Melhor Dia</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </div>
-            <div class="stat-value" id="stat-sessions-count">0</div>
-            <div class="stat-label">Total de Sessoes</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-            </div>
-            <div class="stat-value" id="stat-longest-session">0h 0m</div>
-            <div class="stat-label">Sessao Mais Longa</div>
-          </div>
-        </div>
-
-        <div class="category-breakdown">
-          <h3>Distribuicao por Categoria</h3>
-          <div class="category-bars" id="category-bars"></div>
-        </div>
-      </section>
-    </main>
+  <!-- Preloader -->
+  <div class="preloader" id="preloader">
+    <div class="preloader-heart">
+      <svg viewBox="0 0 64 64" width="64" height="64">
+        <path d="M32 56S6 36 6 20a12 12 0 0 1 24-2h4a12 12 0 0 1 24 2C58 36 32 56 32 56z" fill="currentColor"/>
+      </svg>
+    </div>
+    <p class="preloader-text">A preparar algo especial...</p>
   </div>
 
-  <!-- Mobile Nav -->
-  <nav class="mobile-nav">
-    <a href="#" class="mobile-nav-link active" data-view="timer">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span>Timer</span>
-    </a>
-    <a href="#" class="mobile-nav-link" data-view="history">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-      <span>Historico</span>
-    </a>
-    <a href="#" class="mobile-nav-link" data-view="stats">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-      <span>Stats</span>
-    </a>
-  </nav>
+  <!-- Screen 0: Entrance -->
+  <section class="screen screen-entrance active" id="screen-0">
+    <div class="floating-hearts" id="entrance-hearts"></div>
+    <div class="entrance-content">
+      <div class="envelope" id="envelope">
+        <div class="envelope-flap"></div>
+        <div class="envelope-body">
+          <div class="envelope-letter">
+            <span class="letter-icon">💌</span>
+          </div>
+        </div>
+      </div>
+      <h1 class="entrance-title">Tens uma mensagem especial</h1>
+      <p class="entrance-subtitle">Alguém pensou em ti hoje...</p>
+      <button class="btn-magic" id="btn-start">
+        <span>Abrir</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- Screen 1: Fun Question 1 -->
+  <section class="screen screen-question" id="screen-1">
+    <div class="question-wrapper">
+      <div class="question-number">1 / 4</div>
+      <div class="question-emoji">🤔</div>
+      <h2 class="question-title">Pergunta muito importante:</h2>
+      <p class="question-text">Sabes qual é o dia mais especial do ano?</p>
+      <div class="question-options">
+        <button class="btn-option" data-answer="wrong" data-response="Hmm... tenta outra vez 😄">Natal 🎄</button>
+        <button class="btn-option" data-answer="wrong" data-response="Quase! Mas não...">Ano Novo 🎆</button>
+        <button class="btn-option" data-answer="right" data-response="ÓBVIO! O dia em que TU nasceste! 🎉">2 de Abril 🎂</button>
+        <button class="btn-option" data-answer="wrong" data-response="Não mesmo! 😅">Halloween 🎃</button>
+      </div>
+      <div class="question-feedback" id="feedback-1"></div>
+    </div>
+  </section>
+
+  <!-- Screen 2: Fun Question 2 -->
+  <section class="screen screen-question" id="screen-2">
+    <div class="question-wrapper">
+      <div class="question-number">2 / 4</div>
+      <div class="question-emoji">🌟</div>
+      <h2 class="question-title">Facto científico:</h2>
+      <p class="question-text">O que aconteceu de mais incrível neste dia, há uns anos atrás?</p>
+      <div class="question-options">
+        <button class="btn-option" data-answer="wrong" data-response="Naaah, isso é todos os dias 🌅">O sol nasceu</button>
+        <button class="btn-option" data-answer="right" data-response="Exatamente! O mundo ficou mais bonito! ✨">A Swilam nasceu! 👑</button>
+        <button class="btn-option" data-answer="wrong" data-response="Ainda não inventaram isso 🤖">A internet foi criada</button>
+      </div>
+      <div class="question-feedback" id="feedback-2"></div>
+    </div>
+  </section>
+
+  <!-- Screen 3: Fun Slider -->
+  <section class="screen screen-question" id="screen-3">
+    <div class="question-wrapper">
+      <div class="question-number">3 / 4</div>
+      <div class="question-emoji">💖</div>
+      <h2 class="question-title">Numa escala de 1 a 10...</h2>
+      <p class="question-text">Quão incrível é a Swilam?</p>
+      <div class="slider-container">
+        <input type="range" class="fun-slider" id="fun-slider" min="8" max="10" value="9" step="1">
+        <div class="slider-labels">
+          <span>Super incrível</span>
+          <span>Mega incrível</span>
+          <span>A MAIS incrível</span>
+        </div>
+        <div class="slider-result" id="slider-result">
+          <span class="slider-value" id="slider-value">9</span>
+          <span class="slider-message">Mega incrível!</span>
+        </div>
+      </div>
+      <button class="btn-magic btn-next" id="btn-slider-next">
+        <span>Continuar</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- Screen 4: Loading "calculating" -->
+  <section class="screen screen-loading" id="screen-4">
+    <div class="loading-wrapper">
+      <div class="loading-emoji">🔮</div>
+      <h2 class="loading-title">A calcular o nível de fofura...</h2>
+      <div class="loading-bar-track">
+        <div class="loading-bar-fill" id="loading-bar"></div>
+      </div>
+      <div class="loading-messages">
+        <p class="loading-msg" id="loading-msg">A analisar dados...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Screen 5: THE GRAND FINALE -->
+  <section class="screen screen-finale" id="screen-5">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="finale-content">
+      <div class="crown-container">
+        <div class="crown">👑</div>
+      </div>
+      <h1 class="finale-title">
+        <span class="finale-line">Feliz</span>
+        <span class="finale-line finale-highlight">Aniversário</span>
+        <span class="finale-line finale-name">Swilam!</span>
+      </h1>
+      <div class="cake-container">
+        <div class="cake">🎂</div>
+      </div>
+      <div class="finale-message">
+        <p>Que este novo ano da tua vida seja repleto de momentos mágicos, sorrisos infinitos e tudo aquilo que o teu coração deseja.</p>
+        <p class="finale-message-highlight">Tu mereces o mundo inteiro e muito mais.</p>
+      </div>
+      <div class="finale-hearts">
+        <span>💖</span><span>✨</span><span>🌟</span><span>💫</span><span>💖</span>
+      </div>
+      <div class="finale-date">2 de Abril de 2026</div>
+      <button class="btn-magic btn-replay" id="btn-replay">
+        <span>Ver outra vez</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      </button>
+    </div>
+  </section>
 
   <script src="app.js"></script>
 </body>

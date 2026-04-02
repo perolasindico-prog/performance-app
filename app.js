@@ -1,456 +1,413 @@
-/* ═══════════════════════════════════════════
-   FocusFlow — Work Tracking App
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════
+   Birthday Website for Swilam
+   Built with love, every interaction matters
+   ═══════════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
 
   // ─── State ───
-  let timerInterval = null;
-  let elapsedSeconds = 0;
-  let isRunning = false;
-  let startTimestamp = null;
-  let selectedTag = 'Trabalho';
+  let currentScreen = 0;
+  const totalScreens = 6; // 0-5
 
-  // ─── DOM ───
+  // ─── DOM Helpers ───
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
-  const timerDisplay = $('#timer-display');
-  const timerLabel = $('#timer-label');
-  const btnStart = $('#btn-start');
-  const btnReset = $('#btn-reset');
-  const btnSave = $('#btn-save');
-  const iconPlay = $('#icon-play');
-  const iconPause = $('#icon-pause');
-  const statusDot = $('.status-dot');
-  const statusText = $('.status-text');
-  const ringProgress = $('.timer-ring-progress');
+  // ─── Preloader ───
+  function hidePreloader() {
+    setTimeout(() => {
+      $('#preloader').classList.add('hidden');
+    }, 2000);
+  }
 
-  const CIRCUMFERENCE = 2 * Math.PI * 140; // r=140
+  // ─── Floating Hearts (Entrance) ───
+  function createFloatingHearts() {
+    const container = $('#entrance-hearts');
+    const hearts = ['💕', '💖', '💗', '✨', '🌸', '💜', '🩷', '🤍'];
 
-  // ─── Storage ───
-  function getSessions() {
-    try {
-      return JSON.parse(localStorage.getItem('focusflow_sessions') || '[]');
-    } catch {
-      return [];
+    for (let i = 0; i < 20; i++) {
+      const heart = document.createElement('span');
+      heart.className = 'floating-heart';
+      heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      heart.style.left = Math.random() * 100 + '%';
+      heart.style.animationDuration = (4 + Math.random() * 4) + 's';
+      heart.style.animationDelay = (Math.random() * 6) + 's';
+      heart.style.fontSize = (0.8 + Math.random() * 1) + 'rem';
+      container.appendChild(heart);
     }
   }
 
-  function saveSessions(sessions) {
-    localStorage.setItem('focusflow_sessions', JSON.stringify(sessions));
+  // ─── Screen Navigation ───
+  function goToScreen(index) {
+    const current = $(`#screen-${currentScreen}`);
+    const next = $(`#screen-${index}`);
+
+    if (!next) return;
+
+    // Exit current
+    current.classList.remove('active');
+    current.classList.add('exiting');
+
+    setTimeout(() => {
+      current.classList.remove('exiting');
+    }, 800);
+
+    // Enter next
+    setTimeout(() => {
+      next.classList.add('active');
+      currentScreen = index;
+
+      // Trigger screen-specific logic
+      if (index === 4) startLoadingSequence();
+      if (index === 5) startFinale();
+    }, 400);
   }
 
-  // ─── Helpers ───
-  function formatTime(totalSeconds) {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    const s = totalSeconds % 60;
-    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  }
+  // ─── Screen 0: Entrance ───
+  function initEntrance() {
+    const btnStart = $('#btn-start');
+    const envelope = $('#envelope');
 
-  function formatDuration(totalSeconds) {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    if (h > 0) return `${h}h ${m}m`;
-    if (m > 0) return `${m}m`;
-    return `${totalSeconds}s`;
-  }
+    btnStart.addEventListener('click', () => {
+      // Animate envelope opening
+      envelope.classList.add('open');
 
-  function formatHM(totalSeconds) {
-    const h = Math.floor(totalSeconds / 3600);
-    const m = Math.floor((totalSeconds % 3600) / 60);
-    return `${h}h ${m}m`;
-  }
+      // Transition to first question
+      setTimeout(() => {
+        goToScreen(1);
+      }, 1000);
+    });
 
-  function getDateKey(date) {
-    const d = new Date(date);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  }
-
-  function getTodayKey() {
-    return getDateKey(new Date());
-  }
-
-  function formatTimeOfDay(date) {
-    const d = new Date(date);
-    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-  }
-
-  function getDayName(dateStr) {
-    const days = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
-    const d = new Date(dateStr + 'T12:00:00');
-    return days[d.getDay()];
-  }
-
-  function getFullDayName(dateStr) {
-    const today = getTodayKey();
-    if (dateStr === today) return 'Hoje';
-    const yesterday = getDateKey(new Date(Date.now() - 86400000));
-    if (dateStr === yesterday) return 'Ontem';
-    const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-    const d = new Date(dateStr + 'T12:00:00');
-    return `${getDayName(dateStr)}, ${d.getDate()} ${months[d.getMonth()]}`;
-  }
-
-  // ─── Timer Logic ───
-  function updateTimerDisplay() {
-    timerDisplay.textContent = formatTime(elapsedSeconds);
-
-    // Update ring — full loop every 60 minutes
-    const progress = (elapsedSeconds % 3600) / 3600;
-    const offset = CIRCUMFERENCE * (1 - progress);
-    ringProgress.style.strokeDashoffset = offset;
-  }
-
-  function tick() {
-    elapsedSeconds = Math.floor((Date.now() - startTimestamp) / 1000);
-    updateTimerDisplay();
-  }
-
-  function startTimer() {
-    if (isRunning) {
-      // Pause
-      clearInterval(timerInterval);
-      isRunning = false;
-      iconPlay.style.display = '';
-      iconPause.style.display = 'none';
-      btnStart.classList.remove('running');
-      timerLabel.textContent = 'Pausado';
-      timerLabel.classList.remove('running');
-      statusDot.classList.remove('active');
-      statusText.textContent = 'Pausado';
-      btnSave.disabled = false;
-    } else {
-      // Start / Resume
-      if (startTimestamp === null) {
-        startTimestamp = Date.now();
-      } else {
-        startTimestamp = Date.now() - elapsedSeconds * 1000;
-      }
-      timerInterval = setInterval(tick, 250);
-      isRunning = true;
-      iconPlay.style.display = 'none';
-      iconPause.style.display = '';
-      btnStart.classList.add('running');
-      btnReset.disabled = false;
-      btnSave.disabled = true;
-      timerLabel.textContent = 'Focando...';
-      timerLabel.classList.add('running');
-      statusDot.classList.add('active');
-      statusText.textContent = 'Em foco';
-    }
-  }
-
-  function resetTimer() {
-    clearInterval(timerInterval);
-    isRunning = false;
-    elapsedSeconds = 0;
-    startTimestamp = null;
-    updateTimerDisplay();
-    iconPlay.style.display = '';
-    iconPause.style.display = 'none';
-    btnStart.classList.remove('running');
-    btnReset.disabled = true;
-    btnSave.disabled = true;
-    timerLabel.textContent = 'Pronto';
-    timerLabel.classList.remove('running');
-    statusDot.classList.remove('active');
-    statusText.textContent = 'Pronto para focar';
-    ringProgress.style.strokeDashoffset = 0;
-  }
-
-  function saveSession() {
-    if (elapsedSeconds < 5) return; // Minimum 5 seconds
-
-    const endTime = Date.now();
-    const startTime = endTime - elapsedSeconds * 1000;
-
-    const session = {
-      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-      start: startTime,
-      end: endTime,
-      duration: elapsedSeconds,
-      tag: selectedTag,
-      date: getDateKey(new Date(startTime)),
-    };
-
-    const sessions = getSessions();
-    sessions.push(session);
-    saveSessions(sessions);
-    resetTimer();
-    renderAll();
-  }
-
-  function deleteSession(id) {
-    const sessions = getSessions().filter((s) => s.id !== id);
-    saveSessions(sessions);
-    renderAll();
-  }
-
-  // ─── Rendering ───
-  function renderTodaySessions() {
-    const container = $('#today-sessions');
-    const today = getTodayKey();
-    const sessions = getSessions()
-      .filter((s) => s.date === today)
-      .sort((a, b) => b.start - a.start);
-
-    if (sessions.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nenhuma sessao registrada hoje. Comece a focar!</div>';
-      return;
-    }
-
-    container.innerHTML = sessions
-      .map(
-        (s) => `
-      <div class="session-item">
-        <div class="session-info">
-          <span class="session-tag-badge">${s.tag}</span>
-          <span class="session-time-range">${formatTimeOfDay(s.start)} — ${formatTimeOfDay(s.end)}</span>
-        </div>
-        <div style="display:flex;align-items:center;">
-          <span class="session-duration">${formatDuration(s.duration)}</span>
-          <button class="session-delete" data-id="${s.id}" title="Remover sessao">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
-        </div>
-      </div>
-    `
-      )
-      .join('');
-
-    container.querySelectorAll('.session-delete').forEach((btn) => {
-      btn.addEventListener('click', () => deleteSession(btn.dataset.id));
+    // Also allow clicking the envelope
+    envelope.addEventListener('click', () => {
+      envelope.classList.add('open');
+      setTimeout(() => {
+        goToScreen(1);
+      }, 1000);
     });
   }
 
-  function renderWeeklyChart() {
-    const container = $('#weekly-chart');
-    const sessions = getSessions();
-    const days = [];
-
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key = getDateKey(d);
-      const total = sessions.filter((s) => s.date === key).reduce((sum, s) => sum + s.duration, 0);
-      days.push({ key, total, label: getDayName(key), isToday: i === 0 });
-    }
-
-    const maxVal = Math.max(...days.map((d) => d.total), 1);
-
-    container.innerHTML = days
-      .map((d) => {
-        const height = Math.max((d.total / maxVal) * 160, 4);
-        return `
-        <div class="chart-bar-wrapper">
-          <span class="chart-bar-value">${d.total > 0 ? formatDuration(d.total) : '—'}</span>
-          <div class="chart-bar ${d.isToday ? 'today' : ''}" style="height:${height}px"></div>
-          <span class="chart-bar-label">${d.isToday ? 'Hoje' : d.label}</span>
-        </div>
-      `;
-      })
-      .join('');
+  // ─── Question Screens (1 & 2) ───
+  function initQuestions() {
+    // Screen 1
+    initQuestionScreen(1, 2);
+    // Screen 2
+    initQuestionScreen(2, 3);
   }
 
-  function renderHistoryList() {
-    const container = $('#history-list');
-    const sessions = getSessions();
+  function initQuestionScreen(screenNum, nextScreenNum) {
+    const screen = $(`#screen-${screenNum}`);
+    const options = screen.querySelectorAll('.btn-option');
+    const feedback = $(`#feedback-${screenNum}`);
 
-    // Group by date
-    const grouped = {};
-    sessions.forEach((s) => {
-      if (!grouped[s.date]) grouped[s.date] = [];
-      grouped[s.date].push(s);
-    });
+    options.forEach(btn => {
+      btn.addEventListener('click', () => {
+        // Disable all options
+        options.forEach(o => o.disabled = true);
 
-    const sortedDates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+        const isCorrect = btn.dataset.answer === 'right';
+        const response = btn.dataset.response;
 
-    if (sortedDates.length === 0) {
-      container.innerHTML = '<div class="empty-state">Nenhuma sessao registrada ainda.</div>';
-      return;
-    }
+        // Show visual feedback
+        btn.classList.add(isCorrect ? 'correct' : 'wrong');
 
-    container.innerHTML = sortedDates
-      .slice(0, 14)
-      .map((date) => {
-        const daySessions = grouped[date].sort((a, b) => b.start - a.start);
-        const total = daySessions.reduce((sum, s) => sum + s.duration, 0);
-        return `
-        <div class="history-day">
-          <div class="history-day-header" data-date="${date}">
-            <span class="history-day-date">${getFullDayName(date)}</span>
-            <span class="history-day-total">${formatDuration(total)}</span>
-          </div>
-          <div class="history-day-sessions" id="sessions-${date}">
-            ${daySessions
-              .map(
-                (s) => `
-              <div class="session-item">
-                <div class="session-info">
-                  <span class="session-tag-badge">${s.tag}</span>
-                  <span class="session-time-range">${formatTimeOfDay(s.start)} — ${formatTimeOfDay(s.end)}</span>
-                </div>
-                <span class="session-duration">${formatDuration(s.duration)}</span>
-              </div>
-            `
-              )
-              .join('')}
-          </div>
-        </div>
-      `;
-      })
-      .join('');
+        // Show text feedback
+        feedback.textContent = response;
+        feedback.className = 'question-feedback visible ' + (isCorrect ? 'correct' : 'wrong-fb');
 
-    // Toggle day sessions
-    container.querySelectorAll('.history-day-header').forEach((header) => {
-      header.addEventListener('click', () => {
-        const panel = $(`#sessions-${header.dataset.date}`);
-        panel.classList.toggle('open');
+        if (isCorrect) {
+          // Move to next screen after delay
+          setTimeout(() => {
+            goToScreen(nextScreenNum);
+          }, 1800);
+        } else {
+          // Re-enable after wrong answer
+          setTimeout(() => {
+            btn.classList.remove('wrong');
+            options.forEach(o => {
+              if (!o.classList.contains('correct')) {
+                o.disabled = false;
+              }
+            });
+            feedback.classList.remove('visible');
+          }, 1500);
+        }
       });
     });
   }
 
-  function renderStats() {
-    const sessions = getSessions();
-    const today = getTodayKey();
+  // ─── Screen 3: Slider ───
+  function initSlider() {
+    const slider = $('#fun-slider');
+    const value = $('#slider-value');
+    const result = $('#slider-result');
+    const message = result.querySelector('.slider-message');
+    const btnNext = $('#btn-slider-next');
 
-    // Total today
-    const todayTotal = sessions.filter((s) => s.date === today).reduce((sum, s) => sum + s.duration, 0);
-    $('#stat-total-today').textContent = formatHM(todayTotal);
+    const messages = {
+      8: 'Super incrível!',
+      9: 'Mega incrível!',
+      10: 'A MAIS incrível do universo! 🌌'
+    };
 
-    // Streak
-    let streak = 0;
-    const d = new Date();
-    while (true) {
-      const key = getDateKey(d);
-      const hasSessions = sessions.some((s) => s.date === key);
-      if (hasSessions) {
-        streak++;
-        d.setDate(d.getDate() - 1);
+    slider.addEventListener('input', () => {
+      const val = parseInt(slider.value);
+      value.textContent = val;
+      message.textContent = messages[val] || '';
+
+      // Pulse effect on max
+      if (val === 10) {
+        result.style.borderColor = '#FF6F9C';
+        result.style.background = '#FFF0F6';
       } else {
-        break;
+        result.style.borderColor = '';
+        result.style.background = '';
+      }
+    });
+
+    btnNext.addEventListener('click', () => {
+      goToScreen(4);
+    });
+  }
+
+  // ─── Screen 4: Loading Sequence ───
+  function startLoadingSequence() {
+    const bar = $('#loading-bar');
+    const msg = $('#loading-msg');
+
+    const messages = [
+      { text: 'A analisar nível de fofura...', progress: 15 },
+      { text: 'Fofura detectada: MÁXIMA! 📈', progress: 30 },
+      { text: 'A contar estrelas no céu para ti...', progress: 45 },
+      { text: 'A embrulhar a surpresa... 🎁', progress: 60 },
+      { text: 'A polvilhar purpurina mágica... ✨', progress: 75 },
+      { text: 'Quase lá...', progress: 88 },
+      { text: 'PRONTO! 🎉', progress: 100 },
+    ];
+
+    let i = 0;
+    function nextMessage() {
+      if (i >= messages.length) {
+        // Transition to finale
+        setTimeout(() => {
+          goToScreen(5);
+        }, 800);
+        return;
+      }
+
+      const { text, progress } = messages[i];
+      msg.style.opacity = '0';
+
+      setTimeout(() => {
+        msg.textContent = text;
+        msg.style.opacity = '1';
+        bar.style.width = progress + '%';
+        i++;
+        setTimeout(nextMessage, 900);
+      }, 200);
+    }
+
+    setTimeout(nextMessage, 500);
+  }
+
+  // ─── Screen 5: Grand Finale ───
+  function startFinale() {
+    startConfetti();
+    createSparkles();
+  }
+
+  // ─── Confetti Engine ───
+  function startConfetti() {
+    const canvas = $('#confetti-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const colors = [
+      '#FF3D7F', '#FF6F9C', '#B794F6', '#9F6EF0',
+      '#FFD166', '#FFC233', '#FF9EBF', '#D4BFFF',
+      '#4ade80', '#60a5fa', '#f472b6', '#c084fc'
+    ];
+
+    const confettiPieces = [];
+    const TOTAL = 150;
+
+    class Confetti {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * -canvas.height;
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -20;
+        this.w = 6 + Math.random() * 8;
+        this.h = 4 + Math.random() * 4;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.vy = 1.5 + Math.random() * 3;
+        this.vx = (Math.random() - 0.5) * 2;
+        this.angle = Math.random() * 360;
+        this.angleSpeed = (Math.random() - 0.5) * 8;
+        this.opacity = 0.8 + Math.random() * 0.2;
+        this.shape = Math.random() > 0.5 ? 'rect' : 'circle';
+      }
+
+      update() {
+        this.y += this.vy;
+        this.x += this.vx + Math.sin(this.y * 0.01) * 0.5;
+        this.angle += this.angleSpeed;
+
+        if (this.y > canvas.height + 20) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate((this.angle * Math.PI) / 180);
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = this.color;
+
+        if (this.shape === 'rect') {
+          ctx.fillRect(-this.w / 2, -this.h / 2, this.w, this.h);
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.w / 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
       }
     }
-    $('#stat-streak').textContent = `${streak} dia${streak !== 1 ? 's' : ''}`;
 
-    // Average (7 days)
-    let totalWeek = 0;
-    let daysWithSessions = 0;
-    for (let i = 0; i < 7; i++) {
-      const key = getDateKey(new Date(Date.now() - i * 86400000));
-      const dayTotal = sessions.filter((s) => s.date === key).reduce((sum, s) => sum + s.duration, 0);
-      totalWeek += dayTotal;
-      if (dayTotal > 0) daysWithSessions++;
+    // Create confetti pieces in waves
+    function addWave(count) {
+      for (let i = 0; i < count; i++) {
+        confettiPieces.push(new Confetti());
+      }
     }
-    const avg = daysWithSessions > 0 ? Math.round(totalWeek / daysWithSessions) : 0;
-    $('#stat-avg').textContent = formatHM(avg);
 
-    // Best day
-    const grouped = {};
-    sessions.forEach((s) => {
-      grouped[s.date] = (grouped[s.date] || 0) + s.duration;
-    });
-    const best = Math.max(...Object.values(grouped), 0);
-    $('#stat-best').textContent = formatHM(best);
+    addWave(TOTAL);
 
-    // Total sessions count
-    $('#stat-sessions-count').textContent = sessions.length;
+    // Second burst after 2s
+    setTimeout(() => addWave(50), 2000);
 
-    // Longest session
-    const longest = sessions.reduce((max, s) => Math.max(max, s.duration), 0);
-    $('#stat-longest-session').textContent = formatHM(longest);
+    let running = true;
+    function animate() {
+      if (!running) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Category breakdown
-    const categories = {};
-    sessions.forEach((s) => {
-      categories[s.tag] = (categories[s.tag] || 0) + s.duration;
-    });
-    const maxCat = Math.max(...Object.values(categories), 1);
-    const catContainer = $('#category-bars');
+      confettiPieces.forEach(p => {
+        p.update();
+        p.draw();
+      });
 
-    const sortedCats = Object.entries(categories).sort((a, b) => b[1] - a[1]);
-
-    if (sortedCats.length === 0) {
-      catContainer.innerHTML = '<div class="empty-state">Nenhum dado ainda.</div>';
-    } else {
-      catContainer.innerHTML = sortedCats
-        .map(
-          ([name, total]) => `
-        <div class="category-row">
-          <span class="category-name">${name}</span>
-          <div class="category-bar-track">
-            <div class="category-bar-fill" style="width:${(total / maxCat) * 100}%"></div>
-          </div>
-          <span class="category-value">${formatDuration(total)}</span>
-        </div>
-      `
-        )
-        .join('');
+      requestAnimationFrame(animate);
     }
+
+    animate();
+
+    // Slow down and stop after 10 seconds
+    setTimeout(() => {
+      confettiPieces.forEach(p => {
+        p.vy *= 0.5;
+      });
+    }, 8000);
+
+    setTimeout(() => {
+      running = false;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }, 14000);
   }
 
-  function renderAll() {
-    renderTodaySessions();
-    renderWeeklyChart();
-    renderHistoryList();
-    renderStats();
-  }
+  // ─── Sparkle Particles ───
+  function createSparkles() {
+    const colors = ['#FF3D7F', '#FFD166', '#B794F6', '#FF9EBF', '#4ade80'];
 
-  // ─── Navigation ───
-  function switchView(viewName) {
-    $$('.view').forEach((v) => v.classList.remove('active'));
-    $(`#view-${viewName}`).classList.add('active');
+    function addSparkle() {
+      const el = document.createElement('div');
+      el.className = 'sparkle-particle';
+      el.style.left = (10 + Math.random() * 80) + '%';
+      el.style.top = (20 + Math.random() * 60) + '%';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width = (3 + Math.random() * 5) + 'px';
+      el.style.height = el.style.width;
+      document.body.appendChild(el);
 
-    $$('.nav-link').forEach((l) => l.classList.toggle('active', l.dataset.view === viewName));
-    $$('.mobile-nav-link').forEach((l) => l.classList.toggle('active', l.dataset.view === viewName));
-
-    // Re-render when switching to ensure fresh data
-    renderAll();
-  }
-
-  // ─── Event Listeners ───
-  btnStart.addEventListener('click', startTimer);
-  btnReset.addEventListener('click', resetTimer);
-  btnSave.addEventListener('click', saveSession);
-
-  // Tags
-  $('#tags').addEventListener('click', (e) => {
-    const tag = e.target.closest('.tag');
-    if (!tag) return;
-    $$('.tag').forEach((t) => t.classList.remove('active'));
-    tag.classList.add('active');
-    selectedTag = tag.dataset.tag;
-  });
-
-  // Navigation — sidebar
-  $$('.nav-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchView(link.dataset.view);
-    });
-  });
-
-  // Navigation — mobile
-  $$('.mobile-nav-link').forEach((link) => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      switchView(link.dataset.view);
-    });
-  });
-
-  // Keyboard shortcut — Space to start/pause
-  document.addEventListener('keydown', (e) => {
-    if (e.code === 'Space' && e.target === document.body) {
-      e.preventDefault();
-      startTimer();
+      setTimeout(() => el.remove(), 3000);
     }
-  });
+
+    // Burst of sparkles
+    for (let i = 0; i < 20; i++) {
+      setTimeout(addSparkle, i * 150);
+    }
+
+    // Occasional sparkles for 8 seconds
+    const interval = setInterval(addSparkle, 400);
+    setTimeout(() => clearInterval(interval), 8000);
+  }
+
+  // ─── Replay ───
+  function initReplay() {
+    $('#btn-replay').addEventListener('click', () => {
+      // Reset everything
+      $$('.screen').forEach(s => {
+        s.classList.remove('active', 'exiting');
+      });
+
+      // Reset questions
+      $$('.btn-option').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('correct', 'wrong');
+      });
+      $$('.question-feedback').forEach(fb => {
+        fb.className = 'question-feedback';
+        fb.textContent = '';
+      });
+
+      // Reset slider
+      const slider = $('#fun-slider');
+      slider.value = 9;
+      $('#slider-value').textContent = '9';
+
+      // Reset loading bar
+      $('#loading-bar').style.width = '0%';
+      $('#loading-msg').textContent = 'A analisar dados...';
+
+      // Reset finale animations by re-triggering
+      const finaleContent = $('.finale-content');
+      finaleContent.style.display = 'none';
+      setTimeout(() => {
+        finaleContent.style.display = '';
+      }, 50);
+
+      // Go back to entrance
+      currentScreen = 0;
+      $('#screen-0').classList.add('active');
+    });
+  }
 
   // ─── Init ───
-  ringProgress.style.strokeDasharray = CIRCUMFERENCE;
-  ringProgress.style.strokeDashoffset = 0;
-  renderAll();
+  function init() {
+    hidePreloader();
+    createFloatingHearts();
+    initEntrance();
+    initQuestions();
+    initSlider();
+    initReplay();
+  }
+
+  // Wait for DOM
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
