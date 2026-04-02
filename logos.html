@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direcionado — Logo Concepts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0C0C0F;
+      color: #E8E8ED;
+      min-height: 100vh;
+      padding: 48px 24px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: #8B8B96;
+      margin-bottom: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .sub {
+      text-align: center;
+      font-size: 0.85rem;
+      color: #4A4A54;
+      margin-bottom: 56px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 24px;
+      padding: 48px 32px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      transition: all 0.3s ease;
+    }
+    .card:hover {
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-with-text {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-name {
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #E8E8ED, #8B8B96);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .concept-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: #4A4A54;
+      margin-bottom: -8px;
+    }
+    .concept-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #B4B4BF;
+      margin-bottom: 4px;
+    }
+    .concept-desc {
+      font-size: 0.78rem;
+      color: #6B6B76;
+      text-align: center;
+      line-height: 1.5;
+      max-width: 240px;
+    }
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+    /* Small display */
+    .mini-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 12px;
+      width: 100%;
+    }
+    .mini-row svg { flex-shrink: 0; }
+    .mini-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #D1D1D9;
+      letter-spacing: -0.02em;
+    }
+  </style>
+</head>
+<body>
+  <h1>Direcionado</h1>
+  <p class="sub">4 conceitos de logo — escolhe o que mais ressoa contigo</p>
+
+  <div class="grid">
+
+    <!-- Concept 1: Convergencia -->
+    <div class="card">
+      <span class="concept-num">Conceito 01</span>
+      <div class="logo-preview">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="g1" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="100%" stop-color="#6B6B76"/>
+            </linearGradient>
+          </defs>
+          <!-- Three lines converging to a single point on the right -->
+          <line x1="6" y1="12" x2="52" y2="32" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="32" x2="52" y2="32" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="52" x2="52" y2="32" stroke="url(#g1)" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- The point — destination -->
+          <circle cx="54" cy="32" r="4" fill="url(#g1)"/>
+        </svg>
+      </div>
+      <div class="concept-name">Convergencia</div>
+      <div class="concept-desc">Toda energia, toda atencao, toda intencao — convergem para um unico ponto. Sem dispersao.</div>
+      <div class="divider"></div>
+      <div class="mini-row">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <line x1="6" y1="12" x2="52" y2="32" stroke="#B4B4BF" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="32" x2="52" y2="32" stroke="#B4B4BF" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="6" y1="52" x2="52" y2="32" stroke="#B4B4BF" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="54" cy="32" r="4" fill="#B4B4BF"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- Concept 2: Prisma -->
+    <div class="card">
+      <span class="concept-num">Conceito 02</span>
+      <div class="logo-preview">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="g2" x1="0" y1="0" x2="64" y2="64">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="50%" stop-color="#C0C0C8"/>
+              <stop offset="100%" stop-color="#6B6B76"/>
+            </linearGradient>
+          </defs>
+          <!-- Diamond/prism rotated — sharp, precise, refined -->
+          <path d="M32 4 L58 32 L32 60 L6 32 Z" stroke="url(#g2)" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+          <!-- Inner line — the direction through the center -->
+          <line x1="20" y1="32" x2="46" y2="32" stroke="url(#g2)" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="40,27 46,32 40,37" stroke="url(#g2)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="concept-name">Prisma</div>
+      <div class="concept-desc">Bruto entra, refinado sai. O diamante e resultado de pressao e direcao. A seta interna — sempre para frente.</div>
+      <div class="divider"></div>
+      <div class="mini-row">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <path d="M32 4 L58 32 L32 60 L6 32 Z" stroke="#B4B4BF" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+          <line x1="20" y1="32" x2="46" y2="32" stroke="#B4B4BF" stroke-width="2" stroke-linecap="round"/>
+          <polyline points="40,27 46,32 40,37" stroke="#B4B4BF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- Concept 3: Norte -->
+    <div class="card">
+      <span class="concept-num">Conceito 03</span>
+      <div class="logo-preview">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="g3" x1="32" y1="0" x2="32" y2="64">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="100%" stop-color="#6B6B76"/>
+            </linearGradient>
+          </defs>
+          <!-- Outer circle — the compass -->
+          <circle cx="32" cy="32" r="26" stroke="url(#g3)" stroke-width="2" opacity="0.4"/>
+          <!-- North arrow — sharp, pointing up -->
+          <polygon points="32,8 38,30 32,26 26,30" fill="url(#g3)"/>
+          <!-- South subtle -->
+          <polygon points="32,56 38,34 32,38 26,34" fill="url(#g3)" opacity="0.2"/>
+          <!-- Center dot -->
+          <circle cx="32" cy="32" r="2.5" fill="url(#g3)"/>
+        </svg>
+      </div>
+      <div class="concept-name">Norte</div>
+      <div class="concept-desc">Uma bussola interna. Tu sabes para onde vais. O norte e fixo, a direcao e clara. Sem duvida, sem desvio.</div>
+      <div class="divider"></div>
+      <div class="mini-row">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <circle cx="32" cy="32" r="26" stroke="#B4B4BF" stroke-width="2" opacity="0.4"/>
+          <polygon points="32,8 38,30 32,26 26,30" fill="#B4B4BF"/>
+          <polygon points="32,56 38,34 32,38 26,34" fill="#B4B4BF" opacity="0.2"/>
+          <circle cx="32" cy="32" r="2.5" fill="#B4B4BF"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- Concept 4: Raio -->
+    <div class="card">
+      <span class="concept-num">Conceito 04</span>
+      <div class="logo-preview">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="g4" x1="20" y1="0" x2="44" y2="64">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="50%" stop-color="#C0C0C8"/>
+              <stop offset="100%" stop-color="#6B6B76"/>
+            </linearGradient>
+          </defs>
+          <!-- Lightning bolt — decisive, instant, powerful -->
+          <polygon points="36,4 18,36 30,36 26,60 48,28 34,28" fill="url(#g4)"/>
+        </svg>
+      </div>
+      <div class="concept-name">Raio</div>
+      <div class="concept-desc">Decisao instantanea. Energia concentrada que corta tudo. Nao hesita, nao dispersa — atinge.</div>
+      <div class="divider"></div>
+      <div class="mini-row">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <polygon points="36,4 18,36 30,36 26,60 48,28 34,28" fill="#B4B4BF"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
