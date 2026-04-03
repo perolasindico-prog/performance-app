@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════
-   FocusFlow — Work Tracking + Revenue App v3
+   Orbita — Work Tracking + Revenue
    ═══════════════════════════════════════════ */
 
 (function () {
@@ -180,7 +180,7 @@
     btnStart.classList.remove('running'); btnReset.disabled = true; btnSave.disabled = true;
     timerLabel.textContent = 'Pronto'; timerLabel.classList.remove('running');
     statusDot.classList.remove('active'); statusBadge.classList.remove('active');
-    statusText.textContent = 'Pronto para focar';
+    statusText.textContent = 'Pronto';
     timerGlow.classList.remove('active');
     ringProgress.style.strokeDashoffset = 0;
     document.title = 'Orbita';
@@ -195,7 +195,7 @@
       tag: 'Work', date: getDateKey(new Date(startTime)),
     };
     const sessions = getSessions(); sessions.push(session); saveSessions(sessions);
-    showToast(`Sessao salva! ${formatDuration(elapsedSeconds)} registradas`);
+    showToast(`Sessao salva — ${formatDuration(elapsedSeconds)}`);
     resetTimer(); renderAll();
   }
 
@@ -300,7 +300,7 @@
       container.innerHTML = emptyHTML(
         '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
         'Nenhuma sessao hoje',
-        'Comece uma sessao de foco para registrar seu trabalho.'
+        'Inicia o timer para registar a tua sessao.'
       );
       return;
     }
@@ -348,7 +348,7 @@
       container.innerHTML = emptyHTML(
         '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>',
         'Sem historico ainda',
-        'Suas sessoes de trabalho vao aparecer aqui.'
+        'As tuas sessoes vao aparecer aqui.'
       );
       return;
     }
@@ -499,7 +499,7 @@
       container.innerHTML = emptyHTML(
         '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
         'Nenhuma receita ainda',
-        'Registre sua primeira entrada de faturamento acima.'
+        'Regista a tua primeira entrada acima.'
       );
       return;
     }
