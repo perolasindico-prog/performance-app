@@ -175,6 +175,42 @@
   function formatDateShort(s) { const d = new Date(s+'T12:00:00'); const m = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return `${d.getDate()} ${m[d.getMonth()]}`; }
   function getDaysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
 
+  // ─── Notifications ───
+  let notifPermission = Notification.permission || 'default';
+  let notifInterval = null;
+  const NOTIF_EVERY = 15 * 60; // notify every 15 minutes
+
+  function requestNotifPermission() {
+    if ('Notification' in window && notifPermission !== 'granted') {
+      Notification.requestPermission().then(p => { notifPermission = p; });
+    }
+  }
+
+  function sendNotif(title, body) {
+    if (notifPermission !== 'granted') return;
+    try {
+      new Notification(title, {
+        body: body,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="32" ry="18" stroke="%23B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/><circle cx="58" cy="28" r="4" fill="%23D1D1D9"/><circle cx="40" cy="40" r="2" fill="%238B8B96"/></svg>',
+        silent: false,
+        tag: 'orbita-timer',
+      });
+    } catch {}
+  }
+
+  function startNotifTimer() {
+    clearInterval(notifInterval);
+    notifInterval = setInterval(() => {
+      if (!isRunning) return;
+      sendNotif('Orbita — Em foco', `${formatDuration(elapsedSeconds)} de sessao`);
+    }, NOTIF_EVERY * 1000);
+  }
+
+  function stopNotifTimer() {
+    clearInterval(notifInterval);
+    notifInterval = null;
+  }
+
   // ─── Timer Logic ───
   function updateTimerDisplay() {
     timerDisplay.textContent = formatTime(elapsedSeconds);
@@ -198,8 +234,11 @@
       statusText.textContent = 'Pausado';
       timerGlow.classList.remove('active');
       btnSave.disabled = false;
+      stopNotifTimer();
+      sendNotif('Orbita — Pausado', `Sessao com ${formatDuration(elapsedSeconds)}`);
       document.title = 'Orbita';
     } else {
+      requestNotifPermission();
       startTimestamp = startTimestamp === null ? Date.now() : Date.now() - elapsedSeconds * 1000;
       timerInterval = setInterval(tick, 250); isRunning = true;
       iconPlay.style.display = 'none'; iconPause.style.display = '';
@@ -209,11 +248,13 @@
       statusDot.classList.add('active'); statusBadge.classList.add('active');
       statusText.textContent = 'Em foco';
       timerGlow.classList.add('active');
+      startNotifTimer();
     }
   }
 
   function resetTimer() {
     clearInterval(timerInterval); isRunning = false; elapsedSeconds = 0; startTimestamp = null;
+    stopNotifTimer();
     updateTimerDisplay();
     iconPlay.style.display = ''; iconPause.style.display = 'none';
     btnStart.classList.remove('running'); btnReset.disabled = true; btnSave.disabled = true;
@@ -234,7 +275,9 @@
       tag: 'Work', date: getDateKey(new Date(startTime)),
     };
     const sessions = getSessions(); sessions.push(session); saveSessions(sessions);
-    showToast(`Sessao salva — ${formatDuration(elapsedSeconds)}`);
+    const savedDuration = elapsedSeconds;
+    showToast(`Sessao salva — ${formatDuration(savedDuration)}`);
+    sendNotif('Orbita — Sessao salva', `${formatDuration(savedDuration)} registados`);
     resetTimer(); renderAll();
   }
 
