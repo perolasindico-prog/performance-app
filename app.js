@@ -175,9 +175,14 @@
   function formatDateShort(s) { const d = new Date(s+'T12:00:00'); const m = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']; return `${d.getDate()} ${m[d.getMonth()]}`; }
   function getDaysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
 
+  // ─── Session Goal ───
+  let sessionGoalMinutes = 0; // 0 = free mode
+  let goalReachedNotified = false;
+
   // ─── Notifications ───
   let notifPermission = ('Notification' in window) ? Notification.permission : 'denied';
   let notifInterval = null;
+  const NOTIF_ICON = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="32" ry="18" stroke="%23B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/><circle cx="58" cy="28" r="4" fill="%23D1D1D9"/><circle cx="40" cy="40" r="2" fill="%238B8B96"/></svg>';
 
   function requestNotifPermission() {
     if ('Notification' in window && notifPermission !== 'granted') {
@@ -185,26 +190,50 @@
     }
   }
 
-  function sendNotif(title, body, tag) {
+  function sendNotif(title, body, tag, sound) {
     if (notifPermission !== 'granted') return;
     try {
       new Notification(title, {
         body: body,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="32" ry="18" stroke="%23B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/><circle cx="58" cy="28" r="4" fill="%23D1D1D9"/><circle cx="40" cy="40" r="2" fill="%238B8B96"/></svg>',
-        silent: true,
+        icon: NOTIF_ICON,
+        silent: !sound,
         tag: tag || 'orbita-timer',
         renotify: true,
+        requireInteraction: false,
       });
     } catch {}
   }
 
+  function getGoalLabel() {
+    if (sessionGoalMinutes <= 0) return '';
+    const goalSec = sessionGoalMinutes * 60;
+    const remaining = goalSec - elapsedSeconds;
+    if (remaining <= 0) return ' — Meta atingida!';
+    return ` / ${formatDuration(goalSec)}`;
+  }
+
+  function checkSessionGoal() {
+    if (sessionGoalMinutes <= 0 || goalReachedNotified) return;
+    const goalSec = sessionGoalMinutes * 60;
+    if (elapsedSeconds >= goalSec) {
+      goalReachedNotified = true;
+      // Sound notification for goal reached
+      sendNotif('Meta atingida!', `${formatDuration(goalSec)} — Continua se quiseres.`, 'orbita-goal', true);
+      showToast(`Meta de ${formatDuration(goalSec)} atingida!`);
+      // Visual feedback on the goal button
+      $$('.session-goal-btn').forEach(b => {
+        if (parseInt(b.dataset.minutes) === sessionGoalMinutes) b.classList.add('reached');
+      });
+    }
+  }
+
   function startNotifTimer() {
     stopNotifTimer();
-    // Send immediately, then every 60 seconds
-    sendNotif('Em foco', formatDuration(elapsedSeconds), 'orbita-live');
+    sendNotif('Em foco', formatDuration(elapsedSeconds) + getGoalLabel(), 'orbita-live');
     notifInterval = setInterval(() => {
       if (!isRunning) return;
-      sendNotif('Em foco', formatDuration(elapsedSeconds), 'orbita-live');
+      checkSessionGoal();
+      sendNotif('Em foco', formatDuration(elapsedSeconds) + getGoalLabel(), 'orbita-live');
     }, 60 * 1000);
   }
 
@@ -216,7 +245,10 @@
   // ─── Timer Logic ───
   function updateTimerDisplay() {
     timerDisplay.textContent = formatTime(elapsedSeconds);
-    const progress = (elapsedSeconds % 3600) / 3600;
+    // Ring: if goal set, fill based on goal progress. Otherwise, loop every hour.
+    const progress = sessionGoalMinutes > 0
+      ? Math.min(elapsedSeconds / (sessionGoalMinutes * 60), 1)
+      : (elapsedSeconds % 3600) / 3600;
     ringProgress.style.strokeDashoffset = CIRCUMFERENCE * (1 - progress);
     if (isRunning) document.title = `${formatTime(elapsedSeconds)} — Orbita`;
   }
@@ -224,6 +256,7 @@
   function tick() {
     elapsedSeconds = Math.floor((Date.now() - startTimestamp) / 1000);
     updateTimerDisplay();
+    checkSessionGoal();
   }
 
   function startTimer() {
@@ -256,7 +289,8 @@
 
   function resetTimer() {
     clearInterval(timerInterval); isRunning = false; elapsedSeconds = 0; startTimestamp = null;
-    stopNotifTimer();
+    stopNotifTimer(); goalReachedNotified = false;
+    $$('.session-goal-btn').forEach(b => b.classList.remove('reached'));
     updateTimerDisplay();
     iconPlay.style.display = ''; iconPause.style.display = 'none';
     btnStart.classList.remove('running'); btnReset.disabled = true; btnSave.disabled = true;
@@ -620,6 +654,16 @@
   btnStart.addEventListener('click', startTimer);
   btnReset.addEventListener('click', resetTimer);
   btnSave.addEventListener('click', saveSession);
+
+  // Session goal buttons
+  $('#session-goal-options').addEventListener('click', (e) => {
+    const btn = e.target.closest('.session-goal-btn');
+    if (!btn) return;
+    $$('.session-goal-btn').forEach(b => { b.classList.remove('active'); b.classList.remove('reached'); });
+    btn.classList.add('active');
+    sessionGoalMinutes = parseInt(btn.dataset.minutes) || 0;
+    goalReachedNotified = false;
+  });
 
   $$('.nav-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); switchView(l.dataset.view); }));
   $$('.mobile-nav-link').forEach(l => l.addEventListener('click', e => { e.preventDefault(); switchView(l.dataset.view); }));

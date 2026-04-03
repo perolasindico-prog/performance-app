@@ -610,6 +610,60 @@ body {
   transform: scale(1.05);
 }
 
+/* Session Goal */
+.session-goal {
+  width: 100%;
+  text-align: center;
+}
+
+.session-goal-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--silver-600);
+  margin-bottom: 10px;
+}
+
+.session-goal-options {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.session-goal-btn {
+  padding: 6px 14px;
+  border-radius: 100px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--silver-500);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.session-goal-btn:hover {
+  border-color: var(--glass-border-hover);
+  color: var(--silver-200);
+}
+
+.session-goal-btn.active {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.15);
+  color: var(--silver-100);
+}
+
+.session-goal-btn.reached {
+  background: rgba(74,222,128,0.1);
+  border-color: rgba(74,222,128,0.2);
+  color: #4ade80;
+}
+
 /* Tags */
 .session-tag-area {
   width: 100%;
