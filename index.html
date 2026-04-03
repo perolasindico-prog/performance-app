@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-title" content="Direcionado">
   <meta property="og:title" content="Direcionado">
   <meta property="og:description" content="Tracking de trabalho, foco e faturamento.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64' fill='none'><circle cx='32' cy='32' r='26' stroke='%23B4B4BF' stroke-width='2' opacity='0.4'/><polygon points='32,8 38,30 32,26 26,30' fill='%23B4B4BF'/><polygon points='32,56 38,34 32,38 26,34' fill='%23B4B4BF' opacity='0.2'/><circle cx='32' cy='32' r='2.5' fill='%23B4B4BF'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80' fill='none'><ellipse cx='40' cy='40' rx='32' ry='18' stroke='%23B4B4BF' stroke-width='1.5' opacity='0.25' transform='rotate(-20 40 40)'/><path d='M12,34 A32,18 -20 0 1 58,24' stroke='%23B4B4BF' stroke-width='2.5' fill='none' stroke-linecap='round' transform='rotate(-20 40 40)'/><circle cx='58' cy='28' r='4' fill='%23D1D1D9'/><circle cx='40' cy='40' r='2' fill='%238B8B96'/></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -37,17 +37,21 @@
       <div class="sidebar-inner">
         <div class="logo">
           <div class="logo-icon">
-            <svg width="36" height="36" viewBox="0 0 64 64" fill="none">
+            <svg width="36" height="36" viewBox="0 0 80 80" fill="none">
               <defs>
-                <linearGradient id="logo-grad" x1="32" y1="0" x2="32" y2="64">
+                <linearGradient id="logo-grad" x1="0" y1="0" x2="80" y2="80">
                   <stop offset="0%" stop-color="#F0F0F5"/>
                   <stop offset="100%" stop-color="#6B6B76"/>
                 </linearGradient>
               </defs>
-              <circle cx="32" cy="32" r="26" stroke="url(#logo-grad)" stroke-width="2" opacity="0.4"/>
-              <polygon points="32,8 38,30 32,26 26,30" fill="url(#logo-grad)"/>
-              <polygon points="32,56 38,34 32,38 26,34" fill="url(#logo-grad)" opacity="0.2"/>
-              <circle cx="32" cy="32" r="2.5" fill="url(#logo-grad)"/>
+              <ellipse cx="40" cy="40" rx="32" ry="18" stroke="url(#logo-grad)" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/>
+              <path d="M12,34 A32,18 -20 0 1 58,24" stroke="url(#logo-grad)" stroke-width="2.5" fill="none" stroke-linecap="round" transform="rotate(-20 40 40)">
+                <animate attributeName="stroke-dasharray" values="0 200;80 200;0 200" dur="3s" repeatCount="indefinite"/>
+              </path>
+              <circle r="4" fill="#F0F0F5">
+                <animateMotion dur="3s" repeatCount="indefinite" path="M12,34 A32,18 -20 0 1 68,46 A32,18 -20 0 1 12,34" rotate="auto"/>
+              </circle>
+              <circle cx="40" cy="40" r="2" fill="url(#logo-grad)" opacity="0.5"/>
             </svg>
           </div>
           <span class="logo-text">Direcionado</span>
@@ -100,11 +104,15 @@
       <!-- Mobile header -->
       <div class="mobile-header">
         <div class="mobile-logo">
-          <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
-            <circle cx="32" cy="32" r="26" stroke="#B4B4BF" stroke-width="2" opacity="0.4"/>
-            <polygon points="32,8 38,30 32,26 26,30" fill="#B4B4BF"/>
-            <polygon points="32,56 38,34 32,38 26,34" fill="#B4B4BF" opacity="0.2"/>
-            <circle cx="32" cy="32" r="2.5" fill="#B4B4BF"/>
+          <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+            <ellipse cx="40" cy="40" rx="32" ry="18" stroke="#B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/>
+            <path d="M12,34 A32,18 -20 0 1 58,24" stroke="#B4B4BF" stroke-width="2.5" fill="none" stroke-linecap="round" transform="rotate(-20 40 40)">
+              <animate attributeName="stroke-dasharray" values="0 200;80 200;0 200" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <circle r="4" fill="#D1D1D9">
+              <animateMotion dur="3s" repeatCount="indefinite" path="M12,34 A32,18 -20 0 1 68,46 A32,18 -20 0 1 12,34" rotate="auto"/>
+            </circle>
+            <circle cx="40" cy="40" r="2" fill="#8B8B96"/>
           </svg>
           <span class="mobile-logo-text">Direcionado</span>
         </div>
