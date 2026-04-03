@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Direcionado — Logos Vivos</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0C0C0F;
+      color: #E8E8ED;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    h1 { text-align: center; font-size: 1.2rem; font-weight: 300; color: #6B6B76; margin-bottom: 8px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .sub { text-align: center; font-size: 0.8rem; color: #35353D; margin-bottom: 48px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 40px 24px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      transition: all 0.3s ease;
+    }
+    .card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-3px); }
+    .num { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; color: #35353D; text-transform: uppercase; }
+    .logo-area { width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+    .cname { font-size: 0.95rem; font-weight: 700; color: #B4B4BF; }
+    .cdesc { font-size: 0.75rem; color: #6B6B76; text-align: center; line-height: 1.6; max-width: 220px; }
+    .mini { display: flex; align-items: center; gap: 10px; padding: 10px 16px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 10px; width: 100%; }
+    .mini svg { flex-shrink: 0; }
+    .mini-name { font-size: 0.85rem; font-weight: 800; color: #D1D1D9; letter-spacing: -0.02em; }
+
+    /* Animations */
+    @keyframes pulse { 0%,100% { opacity: 0.8; } 50% { opacity: 1; } }
+    @keyframes dash { to { stroke-dashoffset: 0; } }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+    @keyframes flicker { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  </style>
+</head>
+<body>
+  <h1>Direcionado</h1>
+  <p class="sub">Logos com vida — escolhe o teu</p>
+
+  <div class="grid">
+
+    <!-- 1: Pulso Direcional — heartbeat that becomes an arrow -->
+    <div class="card">
+      <span class="num">01 — Pulso</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <defs>
+            <linearGradient id="p1" x1="0" y1="40" x2="80" y2="40">
+              <stop offset="0%" stop-color="#6B6B76"/>
+              <stop offset="60%" stop-color="#D1D1D9"/>
+              <stop offset="100%" stop-color="#F0F0F5"/>
+            </linearGradient>
+          </defs>
+          <!-- Heartbeat line that ends as an arrow -->
+          <polyline points="4,40 18,40 24,20 32,58 40,32 48,40 56,40" stroke="url(#p1)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <animate attributeName="stroke-dasharray" from="0 200" to="200 0" dur="1.5s" fill="freeze"/>
+          </polyline>
+          <!-- Arrow tip at the end -->
+          <polygon points="56,40 72,40 62,34" fill="#F0F0F5" opacity="0">
+            <animate attributeName="opacity" from="0" to="1" begin="1s" dur="0.5s" fill="freeze"/>
+          </polygon>
+          <polygon points="56,40 72,40 62,46" fill="#8B8B96" opacity="0">
+            <animate attributeName="opacity" from="0" to="1" begin="1s" dur="0.5s" fill="freeze"/>
+          </polygon>
+        </svg>
+      </div>
+      <div class="cname">Pulso</div>
+      <div class="cdesc">Um batimento que se transforma em direcao. Estas vivo, e cada pulso tem proposito.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+          <polyline points="4,40 18,40 24,20 32,58 40,32 48,40 56,40" stroke="#B4B4BF" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <polygon points="56,40 72,40 62,34" fill="#D1D1D9"/>
+          <polygon points="56,40 72,40 62,46" fill="#8B8B96"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- 2: Chama — flame pointing up, alive and directed -->
+    <div class="card">
+      <span class="num">02 — Chama</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="f1" x1="32" y1="58" x2="32" y2="6">
+              <stop offset="0%" stop-color="#4A4A54"/>
+              <stop offset="40%" stop-color="#A1A1AA"/>
+              <stop offset="100%" stop-color="#F0F0F5"/>
+            </linearGradient>
+          </defs>
+          <!-- Outer flame -->
+          <path d="M32 6 C32 6 16 24 16 38 C16 48 23 56 32 56 C41 56 48 48 48 38 C48 24 32 6 32 6Z" fill="url(#f1)" opacity="0.9">
+            <animate attributeName="d" values="M32 6 C32 6 16 24 16 38 C16 48 23 56 32 56 C41 56 48 48 48 38 C48 24 32 6 32 6Z;M32 8 C32 8 17 25 17 37 C17 47 24 55 32 55 C40 55 47 47 47 37 C47 25 32 8 32 8Z;M32 6 C32 6 16 24 16 38 C16 48 23 56 32 56 C41 56 48 48 48 38 C48 24 32 6 32 6Z" dur="2s" repeatCount="indefinite"/>
+          </path>
+          <!-- Inner glow -->
+          <path d="M32 22 C32 22 24 32 24 40 C24 44.5 27.5 48 32 48 C36.5 48 40 44.5 40 40 C40 32 32 22 32 22Z" fill="#0C0C0F" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="cname">Chama</div>
+      <div class="cdesc">Fogo interno que aponta para cima. Energia viva, canalizada, que arde com proposito.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <path d="M32 6 C32 6 16 24 16 38 C16 48 23 56 32 56 C41 56 48 48 48 38 C48 24 32 6 32 6Z" fill="#B4B4BF"/>
+          <path d="M32 22 C32 22 24 32 24 40 C24 44.5 27.5 48 32 48 C36.5 48 40 44.5 40 40 C40 32 32 22 32 22Z" fill="#0C0C0F" opacity="0.5"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- 3: Orbita — dot with orbit trail, always in motion -->
+    <div class="card">
+      <span class="num">03 — Orbita</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <defs>
+            <linearGradient id="o1" x1="0" y1="0" x2="80" y2="80">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="100%" stop-color="#6B6B76"/>
+            </linearGradient>
+          </defs>
+          <!-- Orbit path -->
+          <ellipse cx="40" cy="40" rx="32" ry="18" stroke="url(#o1)" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/>
+          <!-- Trail arc — the motion -->
+          <path d="M12,34 A32,18 -20 0 1 58,24" stroke="url(#o1)" stroke-width="2.5" fill="none" stroke-linecap="round" transform="rotate(-20 40 40)">
+            <animate attributeName="stroke-dasharray" values="0 200;80 200;0 200" dur="3s" repeatCount="indefinite"/>
+          </path>
+          <!-- The point — in constant directed motion -->
+          <circle r="5" fill="#F0F0F5">
+            <animateMotion dur="3s" repeatCount="indefinite" path="M12,34 A32,18 -20 0 1 68,46 A32,18 -20 0 1 12,34" rotate="auto"/>
+          </circle>
+          <!-- Center anchor -->
+          <circle cx="40" cy="40" r="2" fill="url(#o1)" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="cname">Orbita</div>
+      <div class="cdesc">Movimento constante com centro fixo. Nunca para, mas nunca perde o eixo. Disciplina em movimento.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+          <ellipse cx="40" cy="40" rx="32" ry="18" stroke="#B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/>
+          <path d="M12,34 A32,18 -20 0 1 58,24" stroke="#B4B4BF" stroke-width="2.5" fill="none" stroke-linecap="round" transform="rotate(-20 40 40)"/>
+          <circle cx="58" cy="28" r="4" fill="#D1D1D9"/>
+          <circle cx="40" cy="40" r="2" fill="#8B8B96"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- 4: Ascensao — upward arrow breaking through a line/barrier -->
+    <div class="card">
+      <span class="num">04 — Ascensao</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 64 64" fill="none">
+          <defs>
+            <linearGradient id="a1" x1="32" y1="58" x2="32" y2="4">
+              <stop offset="0%" stop-color="#4A4A54"/>
+              <stop offset="100%" stop-color="#F0F0F5"/>
+            </linearGradient>
+          </defs>
+          <!-- The barrier/limit line -->
+          <line x1="8" y1="30" x2="24" y2="30" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <line x1="40" y1="30" x2="56" y2="30" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <!-- Arrow breaking through -->
+          <line x1="32" y1="56" x2="32" y2="12" stroke="url(#a1)" stroke-width="3" stroke-linecap="round"/>
+          <polyline points="22,22 32,10 42,22" stroke="#F0F0F5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- Motion particles -->
+          <circle cx="26" cy="34" r="1.5" fill="#8B8B96" opacity="0.5">
+            <animate attributeName="opacity" values="0.5;0;0.5" dur="1.5s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="34;38;34" dur="1.5s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="38" cy="36" r="1" fill="#8B8B96" opacity="0.4">
+            <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="cy" values="36;42;36" dur="2s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="cname">Ascensao</div>
+      <div class="cdesc">A seta que rompe o limite. Nao aceita tetos. Particulas caem — tu sobes.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 64 64" fill="none">
+          <line x1="8" y1="30" x2="24" y2="30" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <line x1="40" y1="30" x2="56" y2="30" stroke="#6B6B76" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+          <line x1="32" y1="56" x2="32" y2="12" stroke="#B4B4BF" stroke-width="3" stroke-linecap="round"/>
+          <polyline points="22,22 32,10 42,22" stroke="#D1D1D9" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- 5: Onda — converging ripple wave focused to center -->
+    <div class="card">
+      <span class="num">05 — Onda</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <defs>
+            <linearGradient id="w1" x1="0" y1="40" x2="80" y2="40">
+              <stop offset="0%" stop-color="#4A4A54"/>
+              <stop offset="100%" stop-color="#F0F0F5"/>
+            </linearGradient>
+          </defs>
+          <!-- Concentric arcs converging inward from left -->
+          <path d="M8,16 A30,30 0 0,1 8,64" stroke="url(#w1)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.2">
+            <animate attributeName="opacity" values="0.2;0.4;0.2" dur="2s" repeatCount="indefinite"/>
+          </path>
+          <path d="M20,22 A22,22 0 0,1 20,58" stroke="url(#w1)" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.35">
+            <animate attributeName="opacity" values="0.35;0.6;0.35" dur="2s" begin="0.3s" repeatCount="indefinite"/>
+          </path>
+          <path d="M32,28 A14,14 0 0,1 32,52" stroke="url(#w1)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.55">
+            <animate attributeName="opacity" values="0.55;0.8;0.55" dur="2s" begin="0.6s" repeatCount="indefinite"/>
+          </path>
+          <path d="M44,34 A7,7 0 0,1 44,46" stroke="url(#w1)" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.75">
+            <animate attributeName="opacity" values="0.75;1;0.75" dur="2s" begin="0.9s" repeatCount="indefinite"/>
+          </path>
+          <!-- Focus point -->
+          <circle cx="56" cy="40" r="5" fill="#F0F0F5">
+            <animate attributeName="r" values="4;5.5;4" dur="2s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="cname">Onda</div>
+      <div class="cdesc">Ondas que convergem. A energia concentra-se, foca-se, ate ser um ponto de luz pura.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+          <path d="M8,16 A30,30 0 0,1 8,64" stroke="#8B8B96" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.3"/>
+          <path d="M20,22 A22,22 0 0,1 20,58" stroke="#8B8B96" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.45"/>
+          <path d="M32,28 A14,14 0 0,1 32,52" stroke="#B4B4BF" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.65"/>
+          <path d="M44,34 A7,7 0 0,1 44,46" stroke="#D1D1D9" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.85"/>
+          <circle cx="56" cy="40" r="5" fill="#E8E8ED"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+    <!-- 6: Estrela — radiating north star, pulsing -->
+    <div class="card">
+      <span class="num">06 — Estrela</span>
+      <div class="logo-area">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <defs>
+            <radialGradient id="s1" cx="40" cy="40" r="32" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#F0F0F5"/>
+              <stop offset="100%" stop-color="#4A4A54"/>
+            </radialGradient>
+          </defs>
+          <!-- Outer glow rays -->
+          <line x1="40" y1="6" x2="40" y2="20" stroke="#B4B4BF" stroke-width="1" stroke-linecap="round" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite"/>
+          </line>
+          <line x1="40" y1="60" x2="40" y2="74" stroke="#B4B4BF" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <line x1="6" y1="40" x2="20" y2="40" stroke="#B4B4BF" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <line x1="60" y1="40" x2="74" y2="40" stroke="#B4B4BF" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <!-- Diagonal rays -->
+          <line x1="16" y1="16" x2="24" y2="24" stroke="#B4B4BF" stroke-width="0.8" stroke-linecap="round" opacity="0.1"/>
+          <line x1="56" y1="16" x2="48" y2="24" stroke="#B4B4BF" stroke-width="0.8" stroke-linecap="round" opacity="0.1"/>
+          <line x1="16" y1="64" x2="24" y2="56" stroke="#B4B4BF" stroke-width="0.8" stroke-linecap="round" opacity="0.1"/>
+          <line x1="56" y1="64" x2="48" y2="56" stroke="#B4B4BF" stroke-width="0.8" stroke-linecap="round" opacity="0.1"/>
+          <!-- Core 4-point star -->
+          <polygon points="40,22 44,36 58,40 44,44 40,58 36,44 22,40 36,36" fill="url(#s1)">
+            <animate attributeName="opacity" values="0.85;1;0.85" dur="2.5s" repeatCount="indefinite"/>
+          </polygon>
+          <!-- Bright center -->
+          <circle cx="40" cy="40" r="3" fill="#F0F0F5">
+            <animate attributeName="r" values="2.5;3.5;2.5" dur="2.5s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+      </div>
+      <div class="cname">Estrela</div>
+      <div class="cdesc">A estrela guia que pulsa. O norte fixo no caos. Tu es o ponto de luz que nao se apaga.</div>
+      <div class="mini">
+        <svg width="28" height="28" viewBox="0 0 80 80" fill="none">
+          <line x1="40" y1="6" x2="40" y2="20" stroke="#8B8B96" stroke-width="1" stroke-linecap="round" opacity="0.3"/>
+          <line x1="40" y1="60" x2="40" y2="74" stroke="#8B8B96" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <line x1="6" y1="40" x2="20" y2="40" stroke="#8B8B96" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <line x1="60" y1="40" x2="74" y2="40" stroke="#8B8B96" stroke-width="1" stroke-linecap="round" opacity="0.15"/>
+          <polygon points="40,22 44,36 58,40 44,44 40,58 36,44 22,40 36,36" fill="#B4B4BF"/>
+          <circle cx="40" cy="40" r="3" fill="#E8E8ED"/>
+        </svg>
+        <span class="mini-name">Direcionado</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
