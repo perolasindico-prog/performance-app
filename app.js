@@ -176,9 +176,8 @@
   function getDaysInMonth(y, m) { return new Date(y, m, 0).getDate(); }
 
   // ─── Notifications ───
-  let notifPermission = Notification.permission || 'default';
+  let notifPermission = ('Notification' in window) ? Notification.permission : 'denied';
   let notifInterval = null;
-  const NOTIF_EVERY = 15 * 60; // notify every 15 minutes
 
   function requestNotifPermission() {
     if ('Notification' in window && notifPermission !== 'granted') {
@@ -186,24 +185,27 @@
     }
   }
 
-  function sendNotif(title, body) {
+  function sendNotif(title, body, tag) {
     if (notifPermission !== 'granted') return;
     try {
       new Notification(title, {
         body: body,
         icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none"><ellipse cx="40" cy="40" rx="32" ry="18" stroke="%23B4B4BF" stroke-width="1.5" opacity="0.25" transform="rotate(-20 40 40)"/><circle cx="58" cy="28" r="4" fill="%23D1D1D9"/><circle cx="40" cy="40" r="2" fill="%238B8B96"/></svg>',
-        silent: false,
-        tag: 'orbita-timer',
+        silent: true,
+        tag: tag || 'orbita-timer',
+        renotify: true,
       });
     } catch {}
   }
 
   function startNotifTimer() {
-    clearInterval(notifInterval);
+    stopNotifTimer();
+    // Send immediately, then every 60 seconds
+    sendNotif('Em foco', formatDuration(elapsedSeconds), 'orbita-live');
     notifInterval = setInterval(() => {
       if (!isRunning) return;
-      sendNotif('Orbita — Em foco', `${formatDuration(elapsedSeconds)} de sessao`);
-    }, NOTIF_EVERY * 1000);
+      sendNotif('Em foco', formatDuration(elapsedSeconds), 'orbita-live');
+    }, 60 * 1000);
   }
 
   function stopNotifTimer() {
@@ -235,7 +237,7 @@
       timerGlow.classList.remove('active');
       btnSave.disabled = false;
       stopNotifTimer();
-      sendNotif('Orbita — Pausado', `Sessao com ${formatDuration(elapsedSeconds)}`);
+      sendNotif('Pausado', `Sessao com ${formatDuration(elapsedSeconds)}`, 'orbita-live');
       document.title = 'Orbita';
     } else {
       requestNotifPermission();
@@ -277,7 +279,7 @@
     const sessions = getSessions(); sessions.push(session); saveSessions(sessions);
     const savedDuration = elapsedSeconds;
     showToast(`Sessao salva — ${formatDuration(savedDuration)}`);
-    sendNotif('Orbita — Sessao salva', `${formatDuration(savedDuration)} registados`);
+    sendNotif('Sessao salva', `${formatDuration(savedDuration)} registados`, 'orbita-live');
     resetTimer(); renderAll();
   }
 
