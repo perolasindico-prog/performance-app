@@ -113,10 +113,10 @@
     return `${s}s`;
   }
   function formatHM(s) { return `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m`; }
-  function formatMoney(v) { return Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' MT'; }
+  function formatMoney(v) { return 'MT$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
   function formatMoneyShort(v) {
-    if (v >= 1000) return (v/1000).toFixed(1).replace('.0','') + 'k MT';
-    return Number(v).toFixed(0) + ' MT';
+    if (v >= 1000) return 'MT$ ' + (v/1000).toFixed(1).replace('.0','') + 'k';
+    return 'MT$ ' + Number(v).toFixed(0);
   }
   function getDateKey(d) { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`; }
   function getMonthKey(d) { const x = new Date(d); return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}`; }
