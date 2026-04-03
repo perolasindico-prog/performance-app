@@ -65,6 +65,25 @@
     setTimeout(() => { overlay.innerHTML = ''; }, 3500);
   }
 
+  // ─── Data Migration (recover data from previous app names) ───
+  function migrateData() {
+    const oldPrefixes = ['focusflow_', 'direcionado_'];
+    const keys = ['sessions', 'revenue', 'goal'];
+    oldPrefixes.forEach(prefix => {
+      keys.forEach(key => {
+        const oldKey = prefix + key;
+        const newKey = 'orbita_' + key;
+        const oldData = localStorage.getItem(oldKey);
+        const newData = localStorage.getItem(newKey);
+        if (oldData && (!newData || newData === '[]' || newData === '{}')) {
+          localStorage.setItem(newKey, oldData);
+        }
+        if (oldData) localStorage.removeItem(oldKey);
+      });
+    });
+  }
+  migrateData();
+
   // ─── Storage ───
   function getSessions() {
     try { return JSON.parse(localStorage.getItem('orbita_sessions') || '[]'); }
