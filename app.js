@@ -84,22 +84,61 @@
   }
   migrateData();
 
+  // ─── Auto-Backup (chave fixa que nunca muda) ───
+  const BACKUP_KEY = '_orbita_safe_backup_';
+
+  function autoBackup() {
+    try {
+      const backup = {
+        version: 2,
+        savedAt: new Date().toISOString(),
+        sessions: JSON.parse(localStorage.getItem('orbita_sessions') || '[]'),
+        revenue: JSON.parse(localStorage.getItem('orbita_revenue') || '[]'),
+        goal: JSON.parse(localStorage.getItem('orbita_goal') || '{}'),
+      };
+      localStorage.setItem(BACKUP_KEY, JSON.stringify(backup));
+    } catch {}
+  }
+
+  function restoreFromBackup() {
+    try {
+      const raw = localStorage.getItem(BACKUP_KEY);
+      if (!raw) return false;
+      const backup = JSON.parse(raw);
+      const hasSessions = (localStorage.getItem('orbita_sessions') || '[]') !== '[]';
+      const hasRevenue = (localStorage.getItem('orbita_revenue') || '[]') !== '[]';
+      if (!hasSessions && backup.sessions && backup.sessions.length > 0) {
+        localStorage.setItem('orbita_sessions', JSON.stringify(backup.sessions));
+      }
+      if (!hasRevenue && backup.revenue && backup.revenue.length > 0) {
+        localStorage.setItem('orbita_revenue', JSON.stringify(backup.revenue));
+      }
+      if ((!localStorage.getItem('orbita_goal') || localStorage.getItem('orbita_goal') === '{}') && backup.goal && backup.goal.value) {
+        localStorage.setItem('orbita_goal', JSON.stringify(backup.goal));
+      }
+      return true;
+    } catch { return false; }
+  }
+
+  // Restore if main data is empty but backup exists
+  restoreFromBackup();
+
   // ─── Storage ───
   function getSessions() {
     try { return JSON.parse(localStorage.getItem('orbita_sessions') || '[]'); }
     catch { return []; }
   }
-  function saveSessions(sessions) { localStorage.setItem('orbita_sessions', JSON.stringify(sessions)); }
+  function saveSessions(sessions) { localStorage.setItem('orbita_sessions', JSON.stringify(sessions)); autoBackup(); }
   function getRevenue() {
     try { return JSON.parse(localStorage.getItem('orbita_revenue') || '[]'); }
     catch { return []; }
   }
-  function saveRevenue(entries) { localStorage.setItem('orbita_revenue', JSON.stringify(entries)); }
+  function saveRevenue(entries) { localStorage.setItem('orbita_revenue', JSON.stringify(entries)); autoBackup(); }
   function getGoal() {
     try { return JSON.parse(localStorage.getItem('orbita_goal') || '{}'); }
     catch { return {}; }
   }
-  function saveGoal(goal) { localStorage.setItem('orbita_goal', JSON.stringify(goal)); }
+  function saveGoal(goal) { localStorage.setItem('orbita_goal', JSON.stringify(goal)); autoBackup(); }
 
   // ─── Helpers ───
   function formatTime(s) {
