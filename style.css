@@ -1136,12 +1136,14 @@ body {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
+  gap: 12px;
 }
 
 .mobile-logo {
   display: flex;
   align-items: center;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .mobile-logo-text {
@@ -1152,11 +1154,13 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  white-space: nowrap;
 }
 
 .mobile-actions-row {
   display: flex;
   gap: 6px;
+  flex-shrink: 0;
 }
 
 .mobile-actions {
