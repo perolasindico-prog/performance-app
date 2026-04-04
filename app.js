@@ -731,26 +731,31 @@
     const url = getSyncUrl();
     if (!url || isSyncing) return;
     clearTimeout(syncPushTimeout);
+    // Track local update time
+    const cfg = getSyncConfig();
+    if (cfg) { cfg.lastLocalUpdate = new Date().toISOString(); saveSyncConfig(cfg); }
     syncPushTimeout = setTimeout(async () => {
       try {
         isSyncing = true;
+        const now = new Date().toISOString();
         const data = {
           sessions: getSessions(),
           revenue: getRevenue(),
           goal: getGoal(),
-          updatedAt: new Date().toISOString(),
+          updatedAt: now,
         };
         const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
         if (res.ok) {
-          const cfg = getSyncConfig();
-          cfg.lastSync = new Date().toISOString();
-          saveSyncConfig(cfg);
+          const c = getSyncConfig();
+          c.lastSync = now;
+          c.lastLocalUpdate = now;
+          saveSyncConfig(c);
         }
       } catch {} finally { isSyncing = false; }
     }, 2000);
   }
 
-  // Auto-pull on load: merge cloud data with local
+  // Auto-pull on load: use the most recent version (local or cloud)
   async function autoCloudPull() {
     const url = getSyncUrl();
     if (!url) return;
@@ -759,39 +764,26 @@
       const res = await fetch(url);
       if (!res.ok) return;
       const cloud = await res.json();
-      if (!cloud) return;
+      if (!cloud || !cloud.updatedAt) return;
 
-      // Smart merge — combine local + cloud, no duplicates
-      const localSessions = getSessions();
-      const localRevenue = getRevenue();
-      const mergedSessions = mergeById(localSessions, cloud.sessions);
-      const mergedRevenue = mergeById(localRevenue, cloud.revenue);
+      // Compare timestamps — use whichever is more recent
+      const cfg = getSyncConfig();
+      const localTime = cfg.lastLocalUpdate || '2000-01-01';
+      const cloudTime = cloud.updatedAt || '2000-01-01';
 
-      const changed = mergedSessions.length !== localSessions.length || mergedRevenue.length !== localRevenue.length;
-
-      // Save merged data locally (without triggering another push)
-      localStorage.setItem('orbita_sessions', JSON.stringify(mergedSessions));
-      localStorage.setItem('orbita_revenue', JSON.stringify(mergedRevenue));
-      if (cloud.goal && cloud.goal.value && (!getGoal().value)) {
-        localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
-      }
-      autoBackup();
-
-      if (changed) {
+      if (cloudTime > localTime) {
+        // Cloud is newer — use cloud data
+        if (cloud.sessions) localStorage.setItem('orbita_sessions', JSON.stringify(cloud.sessions));
+        if (cloud.revenue) localStorage.setItem('orbita_revenue', JSON.stringify(cloud.revenue));
+        if (cloud.goal) localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
+        autoBackup();
         renderAll();
         showToast('Dados sincronizados');
+      } else {
+        // Local is newer — push local to cloud
+        autoCloudPush();
       }
 
-      // Push back the merged version
-      const data = {
-        sessions: mergedSessions,
-        revenue: mergedRevenue,
-        goal: getGoal(),
-        updatedAt: new Date().toISOString(),
-      };
-      await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
-
-      const cfg = getSyncConfig();
       cfg.lastSync = new Date().toISOString();
       saveSyncConfig(cfg);
     } catch {} finally { isSyncing = false; }
@@ -819,14 +811,12 @@
       if (!res.ok) throw new Error(res.statusText);
       const cloud = await res.json();
       if (!cloud) { showToast('Nenhum dado na nuvem ainda', 'error'); return; }
-      const merged = mergeById(getSessions(), cloud.sessions);
-      const mergedRev = mergeById(getRevenue(), cloud.revenue);
-      localStorage.setItem('orbita_sessions', JSON.stringify(merged));
-      localStorage.setItem('orbita_revenue', JSON.stringify(mergedRev));
+      if (cloud.sessions) localStorage.setItem('orbita_sessions', JSON.stringify(cloud.sessions));
+      if (cloud.revenue) localStorage.setItem('orbita_revenue', JSON.stringify(cloud.revenue));
       if (cloud.goal) localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
       autoBackup();
       const cfg = getSyncConfig(); cfg.lastSync = new Date().toISOString(); saveSyncConfig(cfg);
-      showToast(`Sincronizado! ${merged.length} sessoes, ${mergedRev.length} entradas`);
+      showToast(`Dados baixados da nuvem`);
       renderAll(); closeSyncModal();
     } catch (err) { showToast('Erro ao baixar: ' + err.message, 'error'); }
   }
