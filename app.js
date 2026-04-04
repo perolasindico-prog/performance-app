@@ -229,11 +229,10 @@
 
   function startNotifTimer() {
     stopNotifTimer();
-    sendNotif('Em foco', formatDuration(elapsedSeconds) + getGoalLabel(), 'orbita-live');
+    // Only check goal every 60s, no popup spam
     notifInterval = setInterval(() => {
       if (!isRunning) return;
       checkSessionGoal();
-      sendNotif('Em foco', formatDuration(elapsedSeconds) + getGoalLabel(), 'orbita-live');
     }, 60 * 1000);
   }
 
@@ -270,7 +269,6 @@
       timerGlow.classList.remove('active');
       btnSave.disabled = false;
       stopNotifTimer();
-      sendNotif('Pausado', `Sessao com ${formatDuration(elapsedSeconds)}`, 'orbita-live');
       document.title = 'Orbita';
     } else {
       requestNotifPermission();
@@ -313,7 +311,6 @@
     const sessions = getSessions(); sessions.push(session); saveSessions(sessions);
     const savedDuration = elapsedSeconds;
     showToast(`Sessao salva — ${formatDuration(savedDuration)}`);
-    sendNotif('Sessao salva', `${formatDuration(savedDuration)} registados`, 'orbita-live');
     resetTimer(); renderAll();
   }
 
