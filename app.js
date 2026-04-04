@@ -718,22 +718,11 @@
     return cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
   }
 
-  // Merge arrays by ID — keeps entries from both local and cloud
-  function mergeById(local, cloud) {
-    const map = new Map();
-    (local || []).forEach(item => map.set(item.id, item));
-    (cloud || []).forEach(item => { if (!map.has(item.id)) map.set(item.id, item); });
-    return Array.from(map.values());
-  }
-
   // Auto-push: debounced, runs 2s after last save
   function autoCloudPush() {
     const url = getSyncUrl();
     if (!url || isSyncing) return;
     clearTimeout(syncPushTimeout);
-    // Track local update time
-    const cfg = getSyncConfig();
-    if (cfg) { cfg.lastLocalUpdate = new Date().toISOString(); saveSyncConfig(cfg); }
     syncPushTimeout = setTimeout(async () => {
       try {
         isSyncing = true;
@@ -747,15 +736,13 @@
         const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
         if (res.ok) {
           const c = getSyncConfig();
-          c.lastSync = now;
-          c.lastLocalUpdate = now;
-          saveSyncConfig(c);
+          if (c) { c.lastSync = now; saveSyncConfig(c); }
         }
       } catch {} finally { isSyncing = false; }
     }, 2000);
   }
 
-  // Auto-pull on load: use the most recent version (local or cloud)
+  // Auto-pull on load: if cloud updated after our last sync, use cloud
   async function autoCloudPull() {
     const url = getSyncUrl();
     if (!url) return;
@@ -766,26 +753,20 @@
       const cloud = await res.json();
       if (!cloud || !cloud.updatedAt) return;
 
-      // Compare timestamps — use whichever is more recent
       const cfg = getSyncConfig();
-      const localTime = cfg.lastLocalUpdate || '2000-01-01';
-      const cloudTime = cloud.updatedAt || '2000-01-01';
+      const lastSync = cfg.lastSync || '2000-01-01';
 
-      if (cloudTime > localTime) {
-        // Cloud is newer — use cloud data
+      // Cloud updated after our last sync = another device pushed
+      if (cloud.updatedAt > lastSync) {
         if (cloud.sessions) localStorage.setItem('orbita_sessions', JSON.stringify(cloud.sessions));
         if (cloud.revenue) localStorage.setItem('orbita_revenue', JSON.stringify(cloud.revenue));
         if (cloud.goal) localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
         autoBackup();
+        cfg.lastSync = new Date().toISOString();
+        saveSyncConfig(cfg);
         renderAll();
         showToast('Dados sincronizados');
-      } else {
-        // Local is newer — push local to cloud
-        autoCloudPush();
       }
-
-      cfg.lastSync = new Date().toISOString();
-      saveSyncConfig(cfg);
     } catch {} finally { isSyncing = false; }
   }
 
@@ -855,7 +836,9 @@
     }
     saveSyncConfig({ url, code, lastSync: null });
     showToast('Configuracao guardada');
-    openSyncModal(); // refresh modal state
+    closeSyncModal();
+    // Immediately pull data from cloud for this new device
+    autoCloudPull();
   });
 
   $('#btn-cloud-push').addEventListener('click', cloudPush);
