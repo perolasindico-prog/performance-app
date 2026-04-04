@@ -702,6 +702,102 @@
   if (importMobile) importMobile.addEventListener('click', () => $('#file-import').click());
   $('#file-import').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value=''; });
 
+  // ─── Cloud Sync (Firebase) ───
+  function getSyncConfig() {
+    try { return JSON.parse(localStorage.getItem('orbita_sync_config') || 'null'); }
+    catch { return null; }
+  }
+  function saveSyncConfig(cfg) { localStorage.setItem('orbita_sync_config', JSON.stringify(cfg)); }
+
+  function openSyncModal() {
+    const modal = $('#sync-modal');
+    modal.style.display = '';
+    const cfg = getSyncConfig();
+    if (cfg && cfg.url && cfg.code) {
+      $('#sync-setup').style.display = 'none';
+      $('#sync-actions').style.display = 'block';
+      if (cfg.lastSync) {
+        const d = new Date(cfg.lastSync);
+        $('#sync-last-time').textContent = `${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+    } else {
+      $('#sync-setup').style.display = 'block';
+      $('#sync-actions').style.display = 'none';
+    }
+  }
+
+  function closeSyncModal() { $('#sync-modal').style.display = 'none'; }
+
+  async function cloudPush() {
+    const cfg = getSyncConfig();
+    if (!cfg || !cfg.url || !cfg.code) return;
+    try {
+      const data = {
+        sessions: getSessions(),
+        revenue: getRevenue(),
+        goal: getGoal(),
+        updatedAt: new Date().toISOString(),
+      };
+      const url = cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
+      const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
+      if (!res.ok) throw new Error(res.statusText);
+      cfg.lastSync = new Date().toISOString();
+      saveSyncConfig(cfg);
+      showToast('Dados enviados para a nuvem');
+      closeSyncModal();
+    } catch (err) {
+      showToast('Erro ao enviar: ' + err.message, 'error');
+    }
+  }
+
+  async function cloudPull() {
+    const cfg = getSyncConfig();
+    if (!cfg || !cfg.url || !cfg.code) return;
+    try {
+      const url = cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      if (!data) { showToast('Nenhum dado na nuvem ainda', 'error'); return; }
+      if (data.sessions) saveSessions(data.sessions);
+      if (data.revenue) saveRevenue(data.revenue);
+      if (data.goal) saveGoal(data.goal);
+      cfg.lastSync = new Date().toISOString();
+      saveSyncConfig(cfg);
+      showToast(`Dados baixados! ${(data.sessions||[]).length} sessoes, ${(data.revenue||[]).length} entradas`);
+      renderAll();
+      closeSyncModal();
+    } catch (err) {
+      showToast('Erro ao baixar: ' + err.message, 'error');
+    }
+  }
+
+  // Sync modal events
+  const openSyncBtns = ['#btn-sync', '#btn-sync-mobile'];
+  openSyncBtns.forEach(sel => { const el = $(sel); if (el) el.addEventListener('click', openSyncModal); });
+  $('#sync-modal-close').addEventListener('click', closeSyncModal);
+  $('#sync-modal').addEventListener('click', e => { if (e.target === $('#sync-modal')) closeSyncModal(); });
+
+  $('#btn-sync-setup-save').addEventListener('click', () => {
+    const url = $('#input-firebase-url').value.trim();
+    const code = $('#input-sync-code').value.trim();
+    if (!url || !code) { showToast('Preenche o URL e o codigo', 'error'); return; }
+    if (!url.includes('firebaseio.com') && !url.includes('firebasedatabase.app')) {
+      showToast('URL do Firebase invalido', 'error'); return;
+    }
+    saveSyncConfig({ url, code, lastSync: null });
+    showToast('Configuracao guardada');
+    openSyncModal(); // refresh modal state
+  });
+
+  $('#btn-cloud-push').addEventListener('click', cloudPush);
+  $('#btn-cloud-pull').addEventListener('click', cloudPull);
+  $('#btn-sync-reset').addEventListener('click', () => {
+    localStorage.removeItem('orbita_sync_config');
+    showToast('Configuracao removida');
+    openSyncModal();
+  });
+
   // Keyboard
   document.addEventListener('keydown', e => {
     if (e.code==='Space' && e.target===document.body) { e.preventDefault(); startTimer(); }
