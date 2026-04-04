@@ -128,17 +128,17 @@
     try { return JSON.parse(localStorage.getItem('orbita_sessions') || '[]'); }
     catch { return []; }
   }
-  function saveSessions(sessions) { localStorage.setItem('orbita_sessions', JSON.stringify(sessions)); autoBackup(); }
+  function saveSessions(sessions) { localStorage.setItem('orbita_sessions', JSON.stringify(sessions)); autoBackup(); autoCloudPush(); }
   function getRevenue() {
     try { return JSON.parse(localStorage.getItem('orbita_revenue') || '[]'); }
     catch { return []; }
   }
-  function saveRevenue(entries) { localStorage.setItem('orbita_revenue', JSON.stringify(entries)); autoBackup(); }
+  function saveRevenue(entries) { localStorage.setItem('orbita_revenue', JSON.stringify(entries)); autoBackup(); autoCloudPush(); }
   function getGoal() {
     try { return JSON.parse(localStorage.getItem('orbita_goal') || '{}'); }
     catch { return {}; }
   }
-  function saveGoal(goal) { localStorage.setItem('orbita_goal', JSON.stringify(goal)); autoBackup(); }
+  function saveGoal(goal) { localStorage.setItem('orbita_goal', JSON.stringify(goal)); autoBackup(); autoCloudPush(); }
 
   // ─── Helpers ───
   function formatTime(s) {
@@ -703,11 +703,133 @@
   $('#file-import').addEventListener('change', e => { if (e.target.files[0]) importData(e.target.files[0]); e.target.value=''; });
 
   // ─── Cloud Sync (Firebase) ───
+  let syncPushTimeout = null;
+  let isSyncing = false;
+
   function getSyncConfig() {
     try { return JSON.parse(localStorage.getItem('orbita_sync_config') || 'null'); }
     catch { return null; }
   }
   function saveSyncConfig(cfg) { localStorage.setItem('orbita_sync_config', JSON.stringify(cfg)); }
+
+  function getSyncUrl() {
+    const cfg = getSyncConfig();
+    if (!cfg || !cfg.url || !cfg.code) return null;
+    return cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
+  }
+
+  // Merge arrays by ID — keeps entries from both local and cloud
+  function mergeById(local, cloud) {
+    const map = new Map();
+    (local || []).forEach(item => map.set(item.id, item));
+    (cloud || []).forEach(item => { if (!map.has(item.id)) map.set(item.id, item); });
+    return Array.from(map.values());
+  }
+
+  // Auto-push: debounced, runs 2s after last save
+  function autoCloudPush() {
+    const url = getSyncUrl();
+    if (!url || isSyncing) return;
+    clearTimeout(syncPushTimeout);
+    syncPushTimeout = setTimeout(async () => {
+      try {
+        isSyncing = true;
+        const data = {
+          sessions: getSessions(),
+          revenue: getRevenue(),
+          goal: getGoal(),
+          updatedAt: new Date().toISOString(),
+        };
+        const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
+        if (res.ok) {
+          const cfg = getSyncConfig();
+          cfg.lastSync = new Date().toISOString();
+          saveSyncConfig(cfg);
+        }
+      } catch {} finally { isSyncing = false; }
+    }, 2000);
+  }
+
+  // Auto-pull on load: merge cloud data with local
+  async function autoCloudPull() {
+    const url = getSyncUrl();
+    if (!url) return;
+    try {
+      isSyncing = true;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const cloud = await res.json();
+      if (!cloud) return;
+
+      // Smart merge — combine local + cloud, no duplicates
+      const localSessions = getSessions();
+      const localRevenue = getRevenue();
+      const mergedSessions = mergeById(localSessions, cloud.sessions);
+      const mergedRevenue = mergeById(localRevenue, cloud.revenue);
+
+      const changed = mergedSessions.length !== localSessions.length || mergedRevenue.length !== localRevenue.length;
+
+      // Save merged data locally (without triggering another push)
+      localStorage.setItem('orbita_sessions', JSON.stringify(mergedSessions));
+      localStorage.setItem('orbita_revenue', JSON.stringify(mergedRevenue));
+      if (cloud.goal && cloud.goal.value && (!getGoal().value)) {
+        localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
+      }
+      autoBackup();
+
+      if (changed) {
+        renderAll();
+        showToast('Dados sincronizados');
+      }
+
+      // Push back the merged version
+      const data = {
+        sessions: mergedSessions,
+        revenue: mergedRevenue,
+        goal: getGoal(),
+        updatedAt: new Date().toISOString(),
+      };
+      await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
+
+      const cfg = getSyncConfig();
+      cfg.lastSync = new Date().toISOString();
+      saveSyncConfig(cfg);
+    } catch {} finally { isSyncing = false; }
+  }
+
+  // Manual push/pull for modal buttons
+  async function cloudPush() {
+    const url = getSyncUrl();
+    if (!url) return;
+    try {
+      const data = { sessions: getSessions(), revenue: getRevenue(), goal: getGoal(), updatedAt: new Date().toISOString() };
+      const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
+      if (!res.ok) throw new Error(res.statusText);
+      const cfg = getSyncConfig(); cfg.lastSync = new Date().toISOString(); saveSyncConfig(cfg);
+      showToast('Dados enviados para a nuvem');
+      closeSyncModal();
+    } catch (err) { showToast('Erro ao enviar: ' + err.message, 'error'); }
+  }
+
+  async function cloudPull() {
+    const url = getSyncUrl();
+    if (!url) return;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(res.statusText);
+      const cloud = await res.json();
+      if (!cloud) { showToast('Nenhum dado na nuvem ainda', 'error'); return; }
+      const merged = mergeById(getSessions(), cloud.sessions);
+      const mergedRev = mergeById(getRevenue(), cloud.revenue);
+      localStorage.setItem('orbita_sessions', JSON.stringify(merged));
+      localStorage.setItem('orbita_revenue', JSON.stringify(mergedRev));
+      if (cloud.goal) localStorage.setItem('orbita_goal', JSON.stringify(cloud.goal));
+      autoBackup();
+      const cfg = getSyncConfig(); cfg.lastSync = new Date().toISOString(); saveSyncConfig(cfg);
+      showToast(`Sincronizado! ${merged.length} sessoes, ${mergedRev.length} entradas`);
+      renderAll(); closeSyncModal();
+    } catch (err) { showToast('Erro ao baixar: ' + err.message, 'error'); }
+  }
 
   function openSyncModal() {
     const modal = $('#sync-modal');
@@ -727,50 +849,6 @@
   }
 
   function closeSyncModal() { $('#sync-modal').style.display = 'none'; }
-
-  async function cloudPush() {
-    const cfg = getSyncConfig();
-    if (!cfg || !cfg.url || !cfg.code) return;
-    try {
-      const data = {
-        sessions: getSessions(),
-        revenue: getRevenue(),
-        goal: getGoal(),
-        updatedAt: new Date().toISOString(),
-      };
-      const url = cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
-      const res = await fetch(url, { method: 'PUT', body: JSON.stringify(data), headers: {'Content-Type':'application/json'} });
-      if (!res.ok) throw new Error(res.statusText);
-      cfg.lastSync = new Date().toISOString();
-      saveSyncConfig(cfg);
-      showToast('Dados enviados para a nuvem');
-      closeSyncModal();
-    } catch (err) {
-      showToast('Erro ao enviar: ' + err.message, 'error');
-    }
-  }
-
-  async function cloudPull() {
-    const cfg = getSyncConfig();
-    if (!cfg || !cfg.url || !cfg.code) return;
-    try {
-      const url = cfg.url.replace(/\/$/, '') + '/orbita/' + encodeURIComponent(cfg.code) + '.json';
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(res.statusText);
-      const data = await res.json();
-      if (!data) { showToast('Nenhum dado na nuvem ainda', 'error'); return; }
-      if (data.sessions) saveSessions(data.sessions);
-      if (data.revenue) saveRevenue(data.revenue);
-      if (data.goal) saveGoal(data.goal);
-      cfg.lastSync = new Date().toISOString();
-      saveSyncConfig(cfg);
-      showToast(`Dados baixados! ${(data.sessions||[]).length} sessoes, ${(data.revenue||[]).length} entradas`);
-      renderAll();
-      closeSyncModal();
-    } catch (err) {
-      showToast('Erro ao baixar: ' + err.message, 'error');
-    }
-  }
 
   // Sync modal events
   const openSyncBtns = ['#btn-sync', '#btn-sync-mobile'];
@@ -810,6 +888,9 @@
   // ─── Init ───
   ringProgress.style.strokeDasharray = CIRCUMFERENCE;
   ringProgress.style.strokeDashoffset = 0;
+
+  // Auto-sync on load
+  autoCloudPull();
 
   // Check if goal was already achieved on load
   const initGoal = getGoal();
