@@ -11,6 +11,49 @@
   let isRunning = false;
   let startTimestamp = null;
 
+  // Persist timer state so it survives iOS background kills
+  function saveTimerState() {
+    if (isRunning || startTimestamp) {
+      localStorage.setItem('orbita_timer', JSON.stringify({
+        startTimestamp, isRunning, elapsedSeconds,
+        goalMinutes: sessionGoalMinutes || 0,
+      }));
+    } else {
+      localStorage.removeItem('orbita_timer');
+    }
+  }
+
+  function loadTimerState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem('orbita_timer') || 'null');
+      if (!saved || !saved.startTimestamp) return;
+      startTimestamp = saved.startTimestamp;
+      if (saved.isRunning) {
+        // Timer was running — resume it
+        elapsedSeconds = Math.floor((Date.now() - startTimestamp) / 1000);
+        isRunning = false; // will be set to true by startTimer()
+        sessionGoalMinutes = saved.goalMinutes || 0;
+        // Update goal button UI
+        $$('.session-goal-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.minutes) === sessionGoalMinutes);
+        });
+        startTimer(); // this sets isRunning=true and starts interval
+      } else {
+        // Timer was paused
+        elapsedSeconds = saved.elapsedSeconds || 0;
+        startTimestamp = null; // will be recalculated on resume
+        sessionGoalMinutes = saved.goalMinutes || 0;
+        updateTimerDisplay();
+        btnReset.disabled = false;
+        btnSave.disabled = false;
+        timerLabel.textContent = 'Pausado';
+        $$('.session-goal-btn').forEach(b => {
+          b.classList.toggle('active', parseInt(b.dataset.minutes) === sessionGoalMinutes);
+        });
+      }
+    } catch {}
+  }
+
   // ─── DOM ───
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
@@ -269,6 +312,7 @@
       timerGlow.classList.remove('active');
       btnSave.disabled = false;
       stopNotifTimer();
+      saveTimerState();
       document.title = 'Orbita';
     } else {
       requestNotifPermission();
@@ -282,12 +326,14 @@
       statusText.textContent = 'Em foco';
       timerGlow.classList.add('active');
       startNotifTimer();
+      saveTimerState();
     }
   }
 
   function resetTimer() {
     clearInterval(timerInterval); isRunning = false; elapsedSeconds = 0; startTimestamp = null;
     stopNotifTimer(); goalReachedNotified = false;
+    localStorage.removeItem('orbita_timer');
     $$('.session-goal-btn').forEach(b => b.classList.remove('reached'));
     updateTimerDisplay();
     iconPlay.style.display = ''; iconPause.style.display = 'none';
@@ -858,9 +904,22 @@
   const dateInput = $('#input-revenue-date');
   if (dateInput) dateInput.value = getTodayKey();
 
+  // ─── Recover timer when returning to app ───
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && isRunning && startTimestamp) {
+      // Recalculate elapsed time (JS was frozen while in background)
+      elapsedSeconds = Math.floor((Date.now() - startTimestamp) / 1000);
+      updateTimerDisplay();
+      checkSessionGoal();
+    }
+  });
+
   // ─── Init ───
   ringProgress.style.strokeDasharray = CIRCUMFERENCE;
   ringProgress.style.strokeDashoffset = 0;
+
+  // Restore timer if it was running before page kill/reload
+  loadTimerState();
 
   // Auto-sync on load
   autoCloudPull();
