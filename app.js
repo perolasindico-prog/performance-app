@@ -544,12 +544,20 @@
           ${ds.map(s => `<div class="session-item"><div class="session-info">
             <span class="session-tag-badge">WORK</span>
             <span class="session-time-range">${formatTimeOfDay(s.start)} — ${formatTimeOfDay(s.end)}</span>
-          </div><span class="session-duration">${formatDuration(s.duration)}</span></div>`).join('')}
+          </div><div style="display:flex;align-items:center;">
+            <span class="session-duration">${formatDuration(s.duration)}</span>
+            <button class="session-delete" data-id="${s.id}" title="Remover">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div></div>`).join('')}
         </div>
       </div>`;
     }).join('');
     container.querySelectorAll('.history-day-header').forEach(h => {
       h.addEventListener('click', () => $(`#sessions-${h.dataset.date}`).classList.toggle('open'));
+    });
+    container.querySelectorAll('.session-delete').forEach(b => {
+      b.addEventListener('click', (e) => { e.stopPropagation(); deleteSession(b.dataset.id); });
     });
   }
 
