@@ -106,6 +106,19 @@
     }, 2800);
   }
 
+  // ─── Confirm Dialog ───
+  let confirmCallback = null;
+  function askConfirm(title, text, onOk) {
+    $('#confirm-title').textContent = title || 'Tens a certeza?';
+    $('#confirm-text').textContent = text || 'Esta acao nao pode ser desfeita.';
+    $('#confirm-modal').style.display = '';
+    confirmCallback = onOk;
+  }
+  function closeConfirm() {
+    $('#confirm-modal').style.display = 'none';
+    confirmCallback = null;
+  }
+
   // ─── Celebration ───
   function celebrate() {
     const overlay = $('#celebration-overlay');
@@ -379,8 +392,16 @@
   }
 
   function deleteSession(id) {
-    saveSessions(getSessions().filter(s => s.id !== id));
-    showToast('Sessao removida'); renderAll();
+    const session = getSessions().find(s => s.id === id);
+    if (!session) return;
+    askConfirm(
+      'Remover sessao?',
+      `Vais remover uma sessao de ${formatDuration(session.duration)}. Esta acao nao pode ser desfeita.`,
+      () => {
+        saveSessions(getSessions().filter(s => s.id !== id));
+        showToast('Sessao removida'); renderAll();
+      }
+    );
   }
 
   // ─── Revenue Logic ───
@@ -413,8 +434,16 @@
   }
 
   function deleteRevenue(id) {
-    saveRevenue(getRevenue().filter(e => e.id !== id));
-    showToast('Entrada removida'); renderAll();
+    const entry = getRevenue().find(e => e.id === id);
+    if (!entry) return;
+    askConfirm(
+      'Remover entrada?',
+      `Vais remover ${formatMoney(entry.value)}. Esta acao nao pode ser desfeita.`,
+      () => {
+        saveRevenue(getRevenue().filter(e => e.id !== id));
+        showToast('Entrada removida'); renderAll();
+      }
+    );
   }
 
   // ─── Export / Import ───
@@ -722,6 +751,16 @@
 
   // ─── Events ───
   btnStart.addEventListener('click', () => { requestNotifPermission(); startTimer(); });
+
+  // Confirm modal
+  $('#confirm-ok').addEventListener('click', () => {
+    if (confirmCallback) confirmCallback();
+    closeConfirm();
+  });
+  $('#confirm-cancel').addEventListener('click', closeConfirm);
+  $('#confirm-modal').addEventListener('click', (e) => {
+    if (e.target === $('#confirm-modal')) closeConfirm();
+  });
   btnReset.addEventListener('click', resetTimer);
   btnSave.addEventListener('click', saveSession);
 
